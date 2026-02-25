@@ -724,10 +724,10 @@ async function loadFixtures() {
     if (S.selectedTeams[1]) {
       const id1 = S.selectedTeams[0].team.id;
       const id2 = S.selectedTeams[1].team.id;
-      fixtures = await apiGet(`/fixtures?h2h=${id1}-${id2}&season=${season}`);
+      fixtures = await apiGet(`/fixtures/headtohead?h2h=${id1}-${id2}&season=${season}&last=30`);
     } else {
       const id1 = S.selectedTeams[0].team.id;
-      fixtures = await apiGet(`/fixtures?team=${id1}&season=${season}&last=20`);
+      fixtures = await apiGet(`/fixtures?team=${id1}&season=${season}`);
     }
     renderFixtures(fixtures, el);
   } catch(e) {
