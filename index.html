@@ -8,1229 +8,666 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0a0a0e;
-  --surface:#111117;
-  --surface2:#18181f;
-  --surface3:#1e1e27;
-  --accent:#c8f135;
-  --accent2:#a8d120;
-  --accent-glow:rgba(200,241,53,0.18);
-  --accent-dim:rgba(200,241,53,0.08);
-  --text:#f2f2f2;
-  --text-dim:#777;
-  --red:#ff4455;
-  --red-dim:rgba(255,68,85,0.15);
-  --green-dim:rgba(200,241,53,0.15);
-  --border:rgba(200,241,53,0.15);
-  --border2:rgba(255,255,255,0.06);
-  --radius:10px;
+  --bg:#0a0a0e;--surface:#111117;--surface2:#18181f;--surface3:#1e1e27;
+  --accent:#c8f135;--accent2:#a8d120;--accent-glow:rgba(200,241,53,0.18);
+  --accent-dim:rgba(200,241,53,0.08);--text:#f2f2f2;--text-dim:#777;
+  --red:#ff4455;--red-dim:rgba(255,68,85,0.15);--green-dim:rgba(200,241,53,0.15);
+  --border:rgba(200,241,53,0.15);--border2:rgba(255,255,255,0.07);
 }
 body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 body.ltr{direction:ltr;font-family:'Oswald','Cairo',sans-serif}
-.view{display:none;min-height:100vh;animation:fadeIn .4s ease}
+.view{display:none;min-height:100vh;animation:fadeIn .35s ease}
 .view.active{display:flex;flex-direction:column}
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
 
-/* ── Noise overlay ── */
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
-
-/* ── TOP BAR ── */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border2)}
-.logo{font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
-.lang-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:6px 14px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:13px;transition:.2s}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border2);flex-shrink:0}
+.logo{font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;color:var(--accent);text-transform:uppercase}
+.lang-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:5px 13px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:12px;transition:.2s}
 .lang-btn:hover{color:var(--accent);border-color:var(--accent)}
 
-/* ── SETUP VIEW ── */
-#view-setup{align-items:center;justify-content:center;padding:40px 20px}
-.hero{text-align:center;margin-bottom:48px}
-.hero h1{font-family:'Oswald',sans-serif;font-size:clamp(2.2rem,6vw,3.8rem);font-weight:700;letter-spacing:3px;line-height:1;text-transform:uppercase}
-.hero h1 span{color:var(--accent)}
-.hero p{margin-top:10px;color:var(--text-dim);font-size:15px}
-.setup-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:36px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:20px}
-.setup-card h3{font-size:14px;font-weight:600;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
-.field-group{display:flex;flex-direction:column;gap:8px}
-label{font-size:13px;color:var(--text-dim)}
-input{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;color:var(--text);font-family:inherit;font-size:15px;outline:none;transition:.2s;width:100%}
-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
-input::placeholder{color:#444}
-.teams-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.api-note{font-size:11px;color:var(--text-dim);line-height:1.5;background:var(--surface2);padding:10px 12px;border-radius:8px;border-left:3px solid var(--accent)}
-body.ltr .api-note{border-left:none;border-right:3px solid var(--accent)}
-.btn-primary{background:var(--accent);color:#0a0a0e;font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;padding:15px;cursor:pointer;transition:.2s;width:100%}
-.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 8px 24px var(--accent-glow)}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-secondary{background:transparent;color:var(--text-dim);border:1px solid var(--border2);border-radius:8px;padding:11px 20px;cursor:pointer;font-family:inherit;font-size:14px;transition:.2s}
+input,select{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 13px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:.2s;width:100%}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+input::placeholder{color:#3a3a3a}
+select option{background:var(--surface2);color:var(--text)}
+label{font-size:12px;color:var(--text-dim);display:block;margin-bottom:5px}
+.field{display:flex;flex-direction:column;gap:5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+.btn-primary{background:var(--accent);color:#0a0a0e;font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;padding:14px;cursor:pointer;transition:.2s;width:100%}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 6px 20px var(--accent-glow)}
+.btn-secondary{background:transparent;color:var(--text-dim);border:1px solid var(--border2);border-radius:8px;padding:9px 18px;cursor:pointer;font-family:inherit;font-size:13px;transition:.2s}
 .btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,68,85,0.25);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;font-family:inherit;transition:.2s;white-space:nowrap}
+.btn-danger:hover{background:rgba(255,68,85,0.25)}
 
-/* ── SEARCH VIEW ── */
-#view-search{padding:0}
-.search-header{padding:24px 24px 0}
-.search-header h2{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
-.search-header p{color:var(--text-dim);font-size:13px;margin-top:4px}
-.search-body{padding:20px 24px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
-.step-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-.search-row{display:flex;gap:10px}
-.search-row input{flex:1}
-.search-row .btn-search{background:var(--accent);color:#0a0a0e;border:none;border-radius:8px;padding:12px 20px;cursor:pointer;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:1px;font-size:14px;white-space:nowrap;transition:.2s}
-.search-row .btn-search:hover{background:var(--accent2)}
-.search-row .btn-search:disabled{opacity:.4;cursor:not-allowed}
-.results-list{display:flex;flex-direction:column;gap:8px}
-.team-result{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;cursor:pointer;transition:.2s}
-.team-result:hover{border-color:var(--accent);background:var(--accent-dim)}
-.team-result.selected{border-color:var(--accent);background:var(--accent-dim)}
-.team-logo{width:36px;height:36px;object-fit:contain;border-radius:4px}
-.team-logo-placeholder{width:36px;height:36px;background:var(--surface3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-dim)}
-.team-result-info{flex:1}
-.team-result-name{font-weight:700;font-size:15px}
-.team-result-sub{font-size:12px;color:var(--text-dim);margin-top:2px}
-.check-icon{color:var(--accent);font-size:18px;opacity:0}
-.team-result.selected .check-icon{opacity:1}
-.fixture-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:12px}
-.fixture-card:hover{border-color:var(--accent);background:var(--accent-dim)}
-.fixture-card.selected{border-color:var(--accent);background:var(--accent-dim)}
-.fixture-teams{flex:1;display:flex;align-items:center;gap:10px}
-.fixture-team-name{font-weight:700;font-size:14px;flex:1;text-align:right}
-body.ltr .fixture-team-name{text-align:left}
-.fixture-team-name.away{text-align:left}
-body.ltr .fixture-team-name.away{text-align:right}
-.fixture-score{background:var(--surface3);border-radius:6px;padding:4px 12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;white-space:nowrap}
-.fixture-meta{font-size:11px;color:var(--text-dim);margin-top:4px;text-align:center}
-.loading{text-align:center;padding:24px;color:var(--text-dim);font-size:14px}
-.loading::after{content:'...';animation:dots 1.2s infinite}
-@keyframes dots{0%,20%{content:'.'}40%,60%{content:'..'}80%,100%{content:'...'}}
-.error-msg{color:var(--red);font-size:13px;padding:10px 14px;background:var(--red-dim);border-radius:8px}
-.divider{border:none;border-top:1px solid var(--border2);margin:4px 0}
-.search-footer{padding:16px 24px;border-top:1px solid var(--border2);display:flex;justify-content:flex-end;gap:10px}
+/* SETUP */
+#view-setup{overflow-y:auto}
+.setup-inner{max-width:560px;width:100%;margin:0 auto;padding:24px 20px 60px;display:flex;flex-direction:column;gap:14px}
+.setup-hero{text-align:center;padding:16px 0 20px}
+.setup-hero h1{font-family:'Oswald',sans-serif;font-size:clamp(2rem,7vw,3.2rem);font-weight:700;letter-spacing:3px;text-transform:uppercase;line-height:1}
+.setup-hero h1 span{color:var(--accent)}
+.setup-hero p{color:var(--text-dim);font-size:13px;margin-top:8px}
+.sec-card{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.sec-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.event-item{display:grid;grid-template-columns:38px 1fr 56px auto;gap:7px;align-items:center}
+.ev-badge{font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;padding:8px 0;border-radius:6px;text-align:center;cursor:pointer;user-select:none;transition:.15s}
+.ev-badge.G{background:var(--green-dim);color:var(--accent);border:1px solid rgba(200,241,53,0.3)}
+.ev-badge.A{background:rgba(100,150,255,0.12);color:#88aaff;border:1px solid rgba(100,150,255,0.25)}
+.add-ev-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--surface3);border:1px dashed var(--border2);border-radius:8px;padding:9px;cursor:pointer;font-size:12px;color:var(--text-dim);transition:.2s;width:100%;font-family:inherit}
+.add-ev-btn:hover{border-color:var(--accent);color:var(--accent)}
+.target-preview{background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--accent);min-height:38px;display:flex;align-items:center;word-break:break-word}
 
-/* ── GAME VIEW ── */
-#view-game{padding:0}
-.game-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 20px;gap:12px;border-bottom:1px solid var(--border2)}
-.team-score-box{display:flex;flex-direction:column;gap:4px}
-.team-score-box.team2{text-align:left;align-items:flex-start}
-body.ltr .team-score-box.team2{text-align:right;align-items:flex-end}
-.team-score-box.team1{text-align:right;align-items:flex-end}
-body.ltr .team-score-box.team1{text-align:left;align-items:flex-start}
-.tsb-name{font-size:12px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tsb-points{font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;color:var(--accent);line-height:1}
+/* GAME */
+#view-game{overflow:hidden}
+.game-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 16px;gap:10px;border-bottom:1px solid var(--border2);flex-shrink:0}
+.tsb{display:flex;flex-direction:column;gap:3px}
+.tsb.left{align-items:flex-end;text-align:right}
+.tsb.right{align-items:flex-start;text-align:left}
+body.ltr .tsb.left{align-items:flex-start;text-align:left}
+body.ltr .tsb.right{align-items:flex-end;text-align:right}
+.tsb-name{font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tsb-pts{font-family:'Oswald',sans-serif;font-size:30px;font-weight:700;color:var(--accent);line-height:1}
 .tsb-strikes{display:flex;gap:4px}
-.strike-dot{width:10px;height:10px;border-radius:50%;background:var(--surface3);border:1px solid var(--border2);transition:.3s}
-.strike-dot.active{background:var(--red);border-color:var(--red)}
-.game-center{display:flex;flex-direction:column;align-items:center;gap:4px}
-.timer-display{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;min-width:60px;text-align:center;transition:color .3s}
-.timer-display.warning{color:var(--red);animation:pulse .5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.round-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+.tsb.right .tsb-strikes{flex-direction:row-reverse}
+body.ltr .tsb.right .tsb-strikes{flex-direction:row}
+.sdot{width:9px;height:9px;border-radius:50%;background:var(--surface3);border:1px solid var(--border2);transition:.3s}
+.sdot.hit{background:var(--red);border-color:var(--red);box-shadow:0 0 6px var(--red)}
+.gcenter{display:flex;flex-direction:column;align-items:center;gap:2px}
+.timer{font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;min-width:52px;text-align:center;transition:color .3s}
+.timer.warn{color:var(--red);animation:blink .5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.round-lbl{font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
 
-/* ── MATCH CARD ── */
-.card-scroll{flex:1;overflow-y:auto;padding:16px}
-.match-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;max-width:600px;margin:0 auto;box-shadow:0 0 40px rgba(200,241,53,0.06)}
-.card-top{display:grid;grid-template-columns:1fr 1fr;background:var(--surface2);border-bottom:1px solid var(--border)}
-.card-info-row{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border2)}
-.card-info-row:last-child{border-bottom:none}
-.card-info-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim)}
-.card-teams-section{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 14px;gap:10px;background:var(--surface2);border-bottom:1px solid var(--border)}
-.card-team{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
-.card-team-logo{width:44px;height:44px;object-fit:contain}
-.card-team-logo-ph{width:44px;height:44px;background:var(--surface3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-dim)}
-.card-team-name{font-size:13px;font-weight:700;line-height:1.2}
-.card-score-center{display:flex;flex-direction:column;align-items:center;gap:4px}
-.card-score-label{font-size:9px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
-.card-score-value{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;color:var(--accent)}
-.card-target-row{padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(200,241,53,0.04)}
-.card-target-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
-.card-events{display:grid;grid-template-columns:1fr 1fr;border-bottom:none}
-.card-events-col{padding:10px 0}
-.card-events-col:first-child{border-left:1px solid var(--border)}
-body.ltr .card-events-col:first-child{border-left:none;border-right:1px solid var(--border)}
-.events-header{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);padding:0 12px 8px;text-align:center;border-bottom:1px solid var(--border2);margin-bottom:6px}
+.card-area{flex:1;overflow-y:auto;padding:12px}
+.match-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;max-width:580px;margin:0 auto;box-shadow:0 0 40px rgba(200,241,53,0.05)}
+.card-meta{display:grid;grid-template-columns:1fr 1fr}
+.cmeta-cell{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border2)}
+.cmeta-cell:nth-child(2){border-right:1px solid var(--border2)}
+body.ltr .cmeta-cell:nth-child(2){border-right:none;border-left:1px solid var(--border2)}
+.cmeta-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);white-space:nowrap}
+.card-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 12px;gap:8px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.cteam{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.cteam-name{font-size:13px;font-weight:700;line-height:1.2;word-break:break-word}
+.cscore-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
+.cscore-lbl{font-size:9px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+.cscore-val{font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;color:var(--accent)}
+.card-target{padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(200,241,53,0.03)}
+.ctarget-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:5px}
+.card-events{display:grid;grid-template-columns:1fr 1fr}
+.cevents-col{padding:8px 0}
+.cevents-col:nth-child(1){border-left:1px solid var(--border)}
+body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(--border)}
+.cevents-head{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);padding:0 10px 7px;text-align:center;border-bottom:1px solid var(--border2);margin-bottom:4px}
 
-/* ── SQUARES ── */
-.square{position:relative;cursor:default;transition:all .2s}
-.sq-hidden{background:var(--surface3);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:var(--text-dim);user-select:none}
-.sq-hidden:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);box-shadow:0 0 12px var(--accent-glow)}
-.sq-hidden:active{transform:scale(.96)}
-.sq-revealed{animation:flipIn .35s ease}
-@keyframes flipIn{from{transform:rotateX(-90deg);opacity:0}to{transform:rotateX(0);opacity:1}}
+.sq{border-radius:7px;cursor:pointer;transition:.15s;user-select:none;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;color:var(--text-dim)}
+.sq.hidden{background:var(--surface3);border:1px solid var(--border2)}
+.sq.hidden:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);box-shadow:0 0 10px var(--accent-glow)}
+.sq.hidden:active{transform:scale(.96)}
+.sq.revealed{cursor:default;animation:flip .3s ease}
+@keyframes flip{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
+.sq-info{flex:1;min-height:34px;padding:5px 10px}
+.sq-info.revealed{font-weight:700;font-size:13px}
+.sq-team{min-height:64px;width:100%;padding:8px;flex-direction:column;gap:4px}
+.sq-score{min-width:72px;min-height:48px}
+.sq-target{width:100%;min-height:38px;padding:7px 12px;border-radius:8px;justify-content:flex-start}
+.sq-target.hidden{border:1px solid rgba(200,241,53,0.2);justify-content:center}
+.sq-target.hidden:hover{border-color:var(--accent)}
+.sq-target.revealed{font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;color:var(--accent)}
+.sq-event{margin:3px 8px;padding:7px 10px;min-height:38px;gap:8px}
+.ev-type{font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.ev-type.G{background:var(--green-dim);color:var(--accent)}
+.ev-type.A{background:rgba(100,150,255,0.12);color:#88aaff}
+.ev-player{font-weight:700;font-size:12px;flex:1;font-family:'Cairo',sans-serif}
+.ev-min{font-family:'Oswald',sans-serif;font-size:11px;color:var(--text-dim);white-space:nowrap}
+.no-events{padding:10px;text-align:center;color:var(--text-dim);font-size:11px}
 
-/* Info squares */
-.info-sq{flex:1;min-height:36px;padding:6px 10px;border-radius:6px;display:flex;align-items:center;justify-content:flex-end}
-body.ltr .info-sq{justify-content:flex-start}
-.info-sq.sq-hidden{justify-content:center}
-.info-sq .sq-value{font-weight:700;font-size:14px}
+.controls{flex-shrink:0;border-top:1px solid var(--border2);padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.ctrl-row{display:flex;gap:7px;align-items:center}
+.ctrl-btn{flex:1;padding:9px 6px;border-radius:7px;border:none;cursor:pointer;font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;transition:.2s}
+.ctrl-btn:disabled{opacity:.25;cursor:not-allowed}
+.btn-correct{background:var(--green-dim);color:var(--accent);border:1px solid rgba(200,241,53,0.25)}
+.btn-correct:not(:disabled):hover{background:rgba(200,241,53,0.22)}
+.btn-wrong{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,68,85,0.25)}
+.btn-wrong:not(:disabled):hover{background:rgba(255,68,85,0.22)}
+.btn-timer-ctrl{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+.btn-timer-ctrl:hover{border-color:var(--accent);color:var(--accent)}
+.btn-revall{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border2)}
+.btn-revall:hover{color:var(--text)}
+.btn-key{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;cursor:pointer;font-size:14px;transition:.2s;flex-shrink:0}
+.btn-key:hover{border-color:var(--accent);color:var(--accent)}
+.status-bar{font-size:11px;color:var(--text-dim);text-align:center}
+.status-bar.on{color:var(--accent);font-weight:700}
+.answer-box{background:var(--surface2);border:1px solid var(--accent);border-radius:7px;padding:8px 12px;display:none}
+.answer-box.show{display:block;animation:fadeIn .2s}
+.ab-lbl{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.ab-val{font-weight:700;color:var(--accent);font-size:14px}
+.team-ctrl-lbl{font-size:10px;color:var(--text-dim);text-align:center;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.team-btns{display:flex;gap:6px}
 
-/* Team squares */
-.team-sq{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;padding:6px;border-radius:8px;min-height:70px;justify-content:center}
-.team-sq.sq-hidden{background:var(--surface3);border:1px solid var(--border2);cursor:pointer}
-.team-sq.sq-hidden:hover{border-color:var(--accent);background:var(--accent-dim)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center}
+.overlay.show{display:flex;animation:fadeIn .3s}
+.overlay-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 24px;max-width:360px;width:90%;text-align:center;display:flex;flex-direction:column;gap:14px}
+.overlay-box h2{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px}
+.overlay-box h2 span{color:var(--accent)}
+.overlay-box p{color:var(--text-dim);font-size:13px;line-height:1.5}
+.score-disp{display:flex;justify-content:center;gap:20px;padding:8px 0}
+.sd-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sd-name{font-size:11px;color:var(--text-dim)}
+.sd-pts{font-family:'Oswald',sans-serif;font-size:36px;font-weight:700;color:var(--accent)}
+.sd-sep{font-family:'Oswald',sans-serif;font-size:26px;color:var(--text-dim);align-self:center}
+.overlay-btns{display:flex;gap:10px}
 
-/* Score square */
-.score-sq{min-width:80px;text-align:center;border-radius:8px;padding:6px 10px}
-.score-sq.sq-hidden{background:var(--surface3);border:1px solid var(--border2);cursor:pointer;min-height:50px;display:flex;align-items:center;justify-content:center}
-
-/* Target square */
-.target-sq{border-radius:8px;padding:8px 12px;min-height:38px;display:flex;align-items:center}
-.target-sq.sq-hidden{background:var(--surface3);border:1px solid rgba(200,241,53,0.3);cursor:pointer;justify-content:center;min-height:42px}
-.target-sq.sq-hidden:hover{border-color:var(--accent);background:var(--accent-dim)}
-.target-sq .sq-value{font-weight:700;font-size:15px;color:var(--accent)}
-
-/* Event squares */
-.event-sq{margin:3px 8px;padding:8px 10px;border-radius:7px;min-height:40px;display:flex;align-items:center;gap:8px}
-.event-sq.sq-hidden{background:var(--surface3);border:1px solid var(--border2);cursor:pointer;justify-content:center}
-.event-sq.sq-hidden:hover{border-color:var(--accent);background:var(--accent-dim)}
-.event-sq .event-type{font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;padding:2px 7px;border-radius:4px}
-.event-sq .event-type.G{background:var(--green-dim);color:var(--accent)}
-.event-sq .event-type.A{background:rgba(100,150,255,0.15);color:#88aaff}
-.event-sq .event-player{font-weight:700;font-size:13px;flex:1}
-.event-sq .event-minute{font-family:'Oswald',sans-serif;font-size:12px;color:var(--text-dim);white-space:nowrap}
-
-/* ── CONTROLS PANEL ── */
-.controls{padding:12px 16px;border-top:1px solid var(--border2);display:flex;flex-direction:column;gap:10px}
-.controls-row{display:flex;gap:8px;align-items:center}
-.ctrl-btn{flex:1;padding:10px;border-radius:8px;border:none;cursor:pointer;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;transition:.2s}
-.ctrl-btn:disabled{opacity:.35;cursor:not-allowed}
-.btn-correct{background:var(--green-dim);color:var(--accent);border:1px solid rgba(200,241,53,0.3)}
-.btn-correct:hover:not(:disabled){background:rgba(200,241,53,0.25)}
-.btn-wrong{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,68,85,0.3)}
-.btn-wrong:hover:not(:disabled){background:rgba(255,68,85,0.25)}
-.btn-timer{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
-.btn-timer:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
-.btn-reveal-all{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border2);font-size:12px}
-.btn-reveal-all:hover:not(:disabled){color:var(--text);border-color:var(--border)}
-.btn-show-answer{background:var(--surface3);color:var(--text-dim);border:1px solid var(--border2);font-size:12px;padding:8px}
-.btn-show-answer:hover{color:var(--accent);border-color:var(--accent)}
-.answer-reveal{background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:13px;display:none}
-.answer-reveal.visible{display:block;animation:fadeIn .2s ease}
-.answer-reveal .ar-label{font-size:11px;color:var(--text-dim);margin-bottom:4px;letter-spacing:1px;text-transform:uppercase}
-.answer-reveal .ar-answer{font-weight:700;color:var(--accent)}
-.team-ctrl-label{font-size:11px;color:var(--text-dim);text-align:center;letter-spacing:1px;text-transform:uppercase;width:100%}
-.sep-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-align:center;padding:0 4px;white-space:nowrap}
-.status-bar{font-size:12px;color:var(--text-dim);text-align:center;padding:4px 0}
-.status-bar.active-team{color:var(--accent);font-weight:700}
-
-/* ── NEW ROUND / NEXT CARD ── */
-.round-over-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;animation:fadeIn .3s ease}
-.round-over-overlay.show{display:flex}
-.round-over-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;max-width:400px;width:90%;text-align:center;display:flex;flex-direction:column;gap:16px}
-.round-over-box h2{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;letter-spacing:2px}
-.round-over-box h2 span{color:var(--accent)}
-.round-over-box p{color:var(--text-dim);font-size:14px}
-.score-display{display:flex;justify-content:center;gap:24px;padding:12px 0}
-.sd-team{display:flex;flex-direction:column;gap:4px;align-items:center}
-.sd-name{font-size:12px;color:var(--text-dim)}
-.sd-pts{font-family:'Oswald',sans-serif;font-size:40px;font-weight:700;color:var(--accent)}
-.sd-sep{font-family:'Oswald',sans-serif;font-size:32px;color:var(--text-dim);align-self:center}
-.btns-row{display:flex;gap:10px}
-
-/* Scrollbar */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
-
-/* Responsive */
-@media(max-width:480px){
-  .game-header{padding:10px 12px}
-  .tsb-points{font-size:26px}
-  .card-team-logo,.card-team-logo-ph{width:36px;height:36px}
-  .card-score-value{font-size:22px}
-  .controls{padding:10px 12px}
-}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ SETUP VIEW ═══════════════ -->
+<!-- ════ SETUP VIEW ════ -->
 <div id="view-setup" class="view active">
   <div class="topbar">
     <span class="logo">⚽ Archive</span>
     <button class="lang-btn" onclick="toggleLang()">EN / AR</button>
   </div>
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px">
-    <div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px">
-      <div class="hero">
-        <h1 id="hero-title">جولة <span>الأرشيف</span></h1>
-        <p id="hero-sub">The Archive Round</p>
-      </div>
-      <div class="setup-card">
-        <div>
-          <div class="step-label" id="lbl-gamesetup">إعداد اللعبة</div>
-        </div>
-        <div class="field-group">
-          <label id="lbl-team1">اسم الفريق الأول</label>
-          <input id="inp-team1" type="text" placeholder="الهلال" autocomplete="off">
-        </div>
-        <div class="field-group">
-          <label id="lbl-team2">اسم الفريق الثاني</label>
-          <input id="inp-team2" type="text" placeholder="النصر" autocomplete="off">
-        </div>
-        <hr class="divider">
-        <div class="field-group">
-          <label id="lbl-apikey">API Key — API-Football (api-sports.io)</label>
-          <input id="inp-apikey" type="text" placeholder="xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-          <div class="api-note" id="api-note-text">
-            مجاني 100 طلب/يوم — سجّل على api-sports.io للحصول على المفتاح
-          </div>
-        </div>
-        <button class="btn-primary" id="btn-start-setup" onclick="startSetup()">
-          <span id="lbl-start">ابدأ البحث</span>
-        </button>
+  <div class="setup-inner">
+    <div class="setup-hero">
+      <h1 id="hero-title">جولة <span>الأرشيف</span></h1>
+      <p id="hero-sub">The Archive Round</p>
+    </div>
+
+    <!-- Competing teams (players) -->
+    <div class="sec-card">
+      <div class="sec-title" id="sec-players">الفرق المتنافسة</div>
+      <div class="row2">
+        <div class="field"><label id="lbl-p1">اسم الفريق الأول</label><input id="inp-p1" type="text" placeholder="مثال: الهلال"></div>
+        <div class="field"><label id="lbl-p2">اسم الفريق الثاني</label><input id="inp-p2" type="text" placeholder="مثال: النصر"></div>
       </div>
     </div>
+
+    <!-- Match info -->
+    <div class="sec-card">
+      <div class="sec-title" id="sec-match">معلومات المباراة</div>
+      <div class="row2">
+        <div class="field"><label id="lbl-home">الفريق المضيف</label><input id="inp-home" type="text" placeholder="مثال: الاتحاد" oninput="updateTargetPreview()"></div>
+        <div class="field"><label id="lbl-away">الفريق الضيف</label><input id="inp-away" type="text" placeholder="مثال: الأهلي" oninput="updateTargetPreview()"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label id="lbl-hscore">أهداف المضيف</label><input id="inp-hscore" type="number" min="0" max="20" value="0"></div>
+        <div class="field"><label id="lbl-ascore">أهداف الضيف</label><input id="inp-ascore" type="number" min="0" max="20" value="0"></div>
+        <div class="field"><label id="lbl-season">الموسم</label><input id="inp-season" type="text" placeholder="2024/2023"></div>
+      </div>
+      <div class="field"><label id="lbl-league">البطولة</label><input id="inp-league" type="text" placeholder="مثال: دوري روشن السعودي"></div>
+    </div>
+
+    <!-- Home events -->
+    <div class="sec-card">
+      <div class="sec-title" id="sec-hev">أهداف وتمريرات المضيف</div>
+      <div id="list-home" style="display:flex;flex-direction:column;gap:7px"></div>
+      <button class="add-ev-btn" onclick="addEvent('home')">+ <span id="lbl-addhome">إضافة هدف / تمريرة</span></button>
+    </div>
+
+    <!-- Away events -->
+    <div class="sec-card">
+      <div class="sec-title" id="sec-aev">أهداف وتمريرات الضيف</div>
+      <div id="list-away" style="display:flex;flex-direction:column;gap:7px"></div>
+      <button class="add-ev-btn" onclick="addEvent('away')">+ <span id="lbl-addaway">إضافة هدف / تمريرة</span></button>
+    </div>
+
+    <!-- Target -->
+    <div class="sec-card">
+      <div class="sec-title" id="sec-target">المطلوب</div>
+      <div class="row2">
+        <div class="field">
+          <label id="lbl-ttype">نوع السؤال</label>
+          <select id="inp-ttype" onchange="updateTargetPreview()">
+            <option value="scored" id="opt-scored">من سجّل؟</option>
+            <option value="assisted" id="opt-assisted">من صنع؟</option>
+            <option value="custom" id="opt-custom">سؤال مخصص</option>
+          </select>
+        </div>
+        <div class="field" id="fld-goalnum">
+          <label id="lbl-tnum">رقم الهدف</label>
+          <input id="inp-tnum" type="number" min="1" max="20" value="1" oninput="updateTargetPreview()">
+        </div>
+      </div>
+      <div class="field" id="fld-tteam">
+        <label id="lbl-tteam">لأي فريق؟</label>
+        <select id="inp-tteam" onchange="updateTargetPreview()">
+          <option value="home" id="opt-thome">المضيف</option>
+          <option value="away" id="opt-taway">الضيف</option>
+        </select>
+      </div>
+      <div class="field" id="fld-tcustom" style="display:none">
+        <label id="lbl-tcustom">نص السؤال</label>
+        <input id="inp-tcustom" type="text" placeholder="اكتب السؤال..." oninput="updateTargetPreview()">
+      </div>
+      <div class="field">
+        <label id="lbl-tans">الإجابة الصحيحة (للمضيف فقط)</label>
+        <input id="inp-tans" type="text" placeholder="اسم اللاعب">
+      </div>
+      <div class="target-preview" id="target-preview"></div>
+    </div>
+
+    <button class="btn-primary" onclick="startGame()"><span id="lbl-create">إنشاء البطاقة والبدء</span></button>
   </div>
 </div>
 
-<!-- ═══════════════ SEARCH VIEW ═══════════════ -->
-<div id="view-search" class="view">
-  <div class="topbar">
-    <button class="btn-secondary" style="padding:6px 14px;font-size:13px" onclick="goTo('setup')">← <span class="back-lbl">رجوع</span></button>
-    <span class="logo" id="search-teams-header">—</span>
-    <button class="lang-btn" onclick="toggleLang()">EN / AR</button>
-  </div>
-
-  <div class="search-body">
-    <!-- Step 1: Find Team 1 -->
-    <div id="section-team1-search">
-      <div class="step-label" id="lbl-step1">الخطوة 1 — ابحث عن الفريق الأول</div>
-      <div class="search-row">
-        <input id="inp-search-team1" type="text" placeholder="اكتب اسم الفريق..." autocomplete="off" onkeydown="if(event.key==='Enter')searchTeam(1)">
-        <button class="btn-search" id="btn-search-t1" onclick="searchTeam(1)"><span id="lbl-search">بحث</span></button>
-      </div>
-      <div id="results-team1" class="results-list" style="margin-top:10px"></div>
-    </div>
-
-    <!-- Step 2: Find Team 2 -->
-    <div id="section-team2-search" style="display:none">
-      <div class="step-label" id="lbl-step2">الخطوة 2 — ابحث عن الفريق الثاني</div>
-      <div class="search-row">
-        <input id="inp-search-team2" type="text" placeholder="اكتب اسم الفريق..." autocomplete="off" onkeydown="if(event.key==='Enter')searchTeam(2)">
-        <button class="btn-search" id="btn-search-t2" onclick="searchTeam(2)"><span>بحث</span></button>
-      </div>
-      <div id="results-team2" class="results-list" style="margin-top:10px"></div>
-    </div>
-
-    <!-- Step 3: Choose fixture -->
-    <div id="section-fixtures" style="display:none">
-      <div class="step-label" id="lbl-step3">الخطوة 3 — اختر المباراة</div>
-      <div class="search-row" style="margin-bottom:10px">
-        <input id="inp-season" type="number" placeholder="الموسم (مثال 2024)" min="2000" max="2030" style="max-width:200px">
-        <button class="btn-search" id="btn-load-fixtures" onclick="loadFixtures()"><span id="lbl-loadfx">تحميل المباريات</span></button>
-      </div>
-      <div id="results-fixtures" class="results-list"></div>
-    </div>
-  </div>
-
-  <div class="search-footer">
-    <button class="btn-secondary" onclick="goTo('setup')"><span id="lbl-cancel">إلغاء</span></button>
-    <button class="btn-primary" id="btn-create-card" style="padding:12px 28px;width:auto" onclick="createCard()" disabled><span id="lbl-createcard">إنشاء البطاقة</span></button>
-  </div>
-</div>
-
-<!-- ═══════════════ GAME VIEW ═══════════════ -->
+<!-- ════ GAME VIEW ════ -->
 <div id="view-game" class="view">
-  <!-- Header with scores -->
   <div class="game-header">
-    <div class="team-score-box team1" id="tsb-team1">
-      <div class="tsb-name" id="gh-team1-name">فريق 1</div>
-      <div class="tsb-points" id="gh-team1-pts">0</div>
-      <div class="tsb-strikes" id="gh-team1-strikes"></div>
+    <div class="tsb left">
+      <div class="tsb-name" id="gh-p1">ف1</div>
+      <div class="tsb-pts" id="gh-p1-pts">0</div>
+      <div class="tsb-strikes" id="gh-p1-str"></div>
     </div>
-    <div class="game-center">
-      <div class="round-label" id="lbl-round">الجولة</div>
-      <div class="timer-display" id="timer-display">30</div>
+    <div class="gcenter">
+      <div class="round-lbl" id="lbl-round">الجولة</div>
+      <div class="timer" id="timer">30</div>
     </div>
-    <div class="team-score-box team2" id="tsb-team2">
-      <div class="tsb-name" id="gh-team2-name">فريق 2</div>
-      <div class="tsb-points" id="gh-team2-pts">0</div>
-      <div class="tsb-strikes" id="gh-team2-strikes"></div>
-    </div>
-  </div>
-
-  <!-- Match card -->
-  <div class="card-scroll">
-    <div class="match-card" id="match-card">
-      <!-- dynamically rendered -->
+    <div class="tsb right">
+      <div class="tsb-name" id="gh-p2">ف2</div>
+      <div class="tsb-pts" id="gh-p2-pts">0</div>
+      <div class="tsb-strikes" id="gh-p2-str"></div>
     </div>
   </div>
 
-  <!-- Controls -->
+  <div class="card-area">
+    <div class="match-card" id="match-card"></div>
+  </div>
+
   <div class="controls">
-    <div class="status-bar" id="status-bar">جاهز للعب</div>
-    <div class="controls-row">
-      <button class="ctrl-btn btn-timer" id="btn-timer" onclick="startTimer()"><span id="lbl-starttimer">▶ ابدأ الوقت</span></button>
-      <button class="ctrl-btn btn-reveal-all" id="btn-reveal-all" onclick="revealAll()"><span id="lbl-revealall">كشف الكل</span></button>
-      <button class="ctrl-btn btn-show-answer" id="btn-show-ans" onclick="toggleAnswerReveal()">🔑</button>
+    <div class="status-bar" id="status-bar">—</div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn btn-timer-ctrl" onclick="toggleTimer()">▶ <span id="lbl-tbtn">ابدأ</span></button>
+      <button class="ctrl-btn btn-revall" onclick="revealAll()"><span id="lbl-revall">كشف الكل</span></button>
+      <button class="btn-key" onclick="toggleAnswer()">🔑</button>
     </div>
-    <div class="answer-reveal" id="answer-reveal">
-      <div class="ar-label" id="lbl-correctanswer">الإجابة الصحيحة</div>
-      <div class="ar-answer" id="answer-text">—</div>
+    <div class="answer-box" id="answer-box">
+      <div class="ab-lbl" id="lbl-cans">الإجابة الصحيحة</div>
+      <div class="ab-val" id="answer-val">—</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div>
-        <div class="team-ctrl-label" id="ctrl-t1-label">الفريق الأول</div>
-        <div style="display:flex;gap:6px;margin-top:6px">
-          <button class="ctrl-btn btn-correct" id="btn-t1-correct" onclick="markAnswer(0, true)">✓</button>
-          <button class="ctrl-btn btn-wrong" id="btn-t1-wrong" onclick="markAnswer(0, false)">✗</button>
+        <div class="team-ctrl-lbl" id="ctrl-p1-lbl">الفريق الأول</div>
+        <div class="team-btns">
+          <button class="ctrl-btn btn-correct" id="b-p1-ok" onclick="markAnswer(0,true)">✓ <span id="lbl-ok1">صح</span></button>
+          <button class="ctrl-btn btn-wrong"   id="b-p1-no" onclick="markAnswer(0,false)">✗ <span id="lbl-no1">خطأ</span></button>
         </div>
       </div>
       <div>
-        <div class="team-ctrl-label" id="ctrl-t2-label">الفريق الثاني</div>
-        <div style="display:flex;gap:6px;margin-top:6px">
-          <button class="ctrl-btn btn-correct" id="btn-t2-correct" onclick="markAnswer(1, true)">✓</button>
-          <button class="ctrl-btn btn-wrong" id="btn-t2-wrong" onclick="markAnswer(1, false)">✗</button>
+        <div class="team-ctrl-lbl" id="ctrl-p2-lbl">الفريق الثاني</div>
+        <div class="team-btns">
+          <button class="ctrl-btn btn-correct" id="b-p2-ok" onclick="markAnswer(1,true)">✓ <span id="lbl-ok2">صح</span></button>
+          <button class="ctrl-btn btn-wrong"   id="b-p2-no" onclick="markAnswer(1,false)">✗ <span id="lbl-no2">خطأ</span></button>
         </div>
       </div>
+    </div>
+    <div style="text-align:center">
+      <button class="btn-secondary" style="font-size:12px;padding:7px 16px" onclick="goSetup()"><span id="lbl-edit">← تعديل البطاقة</span></button>
     </div>
   </div>
 </div>
 
 <!-- Round Over Overlay -->
-<div class="round-over-overlay" id="round-over-overlay">
-  <div class="round-over-box">
-    <h2 id="round-over-title">نهاية الجولة</h2>
-    <p id="round-over-msg">لم يجب أحد بشكل صحيح</p>
-    <div class="score-display">
-      <div class="sd-team"><div class="sd-name" id="ro-t1-name">—</div><div class="sd-pts" id="ro-t1-pts">0</div></div>
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <h2 id="ro-title">نهاية الجولة</h2>
+    <p id="ro-msg"></p>
+    <div class="score-disp">
+      <div class="sd-item"><div class="sd-name" id="ro-p1n">—</div><div class="sd-pts" id="ro-p1p">0</div></div>
       <div class="sd-sep">:</div>
-      <div class="sd-team"><div class="sd-pts" id="ro-t2-pts">0</div><div class="sd-name" id="ro-t2-name">—</div></div>
+      <div class="sd-item"><div class="sd-pts" id="ro-p2p">0</div><div class="sd-name" id="ro-p2n">—</div></div>
     </div>
-    <div class="btns-row">
-      <button class="btn-secondary" style="flex:1" onclick="newCard()"><span id="lbl-newcard">بطاقة جديدة</span></button>
-      <button class="btn-primary" style="flex:1;padding:12px" onclick="endGame()"><span id="lbl-endgame">إنهاء اللعبة</span></button>
+    <div class="overlay-btns">
+      <button class="btn-secondary" style="flex:1" onclick="closeOverlay();goSetup()"><span id="lbl-newcard">بطاقة جديدة</span></button>
+      <button class="btn-primary" style="flex:1;padding:11px" onclick="closeOverlay();replayCard()"><span id="lbl-replay">نفس البطاقة</span></button>
     </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════
-//  TRANSLATIONS
-// ══════════════════════════════════════════
-const TX = {
-  ar: {
-    heroTitle: 'جولة <span>الأرشيف</span>',
-    heroSub: 'The Archive Round',
-    gameSetup: 'إعداد اللعبة',
-    lbl_team1: 'اسم الفريق الأول',
-    lbl_team2: 'اسم الفريق الثاني',
-    lbl_apikey: 'مفتاح API — API-Football (api-sports.io)',
-    apiNote: 'مجاني 100 طلب/يوم — سجّل على api-sports.io للحصول على المفتاح',
-    lbl_start: 'ابدأ البحث',
-    lbl_step1: 'الخطوة 1 — ابحث عن الفريق الأول',
-    lbl_step2: 'الخطوة 2 — ابحث عن الفريق الثاني',
-    lbl_step3: 'الخطوة 3 — اختر المباراة',
-    lbl_search: 'بحث',
-    lbl_loadfx: 'تحميل المباريات',
-    lbl_createcard: 'إنشاء البطاقة',
-    lbl_cancel: 'إلغاء',
-    lbl_back: 'رجوع',
-    lbl_league: 'البطولة',
-    lbl_season: 'الموسم',
-    lbl_result: 'النتيجة',
-    lbl_target: 'المطلوب',
-    lbl_starttimer: '▶ ابدأ الوقت',
-    lbl_stoptimer: '■ إيقاف',
-    lbl_revealall: 'كشف الكل',
-    lbl_correctanswer: 'الإجابة الصحيحة',
-    lbl_round: 'الجولة',
-    roundover: 'نهاية الجولة',
-    roundover_nobody: 'لم يجب أحد بشكل صحيح',
-    roundover_correct: 'أجاب بشكل صحيح!',
-    lbl_newcard: 'بطاقة جديدة',
-    lbl_endgame: 'إنهاء اللعبة',
-    status_ready: 'جاهز للعب',
-    status_timing: 'الوقت يعمل...',
-    targetQ_scored: (name, num) => `من سجّل الهدف رقم ${num} لـ ${name}؟`,
-    targetQ_assisted: (name, num) => `من صنع الهدف رقم ${num} لـ ${name}؟`,
-    lbl_goal: 'هدف',
-    lbl_assist: 'تمريرة',
-    loading_teams: 'جاري البحث...',
-    loading_fixtures: 'جاري تحميل المباريات...',
-    no_results: 'لا توجد نتائج',
-    select_team_first: 'اختر الفريق الأول أولاً',
-    select_fixture: 'اختر مباراة أولاً',
-    error_api: 'خطأ في الاتصال بالـ API — تحقق من المفتاح',
-    t1_ctrl: 'الفريق الأول',
-    t2_ctrl: 'الفريق الثاني',
-    no_events: 'لا توجد أهداف',
-  },
-  en: {
-    heroTitle: 'The <span>Archive</span>',
-    heroSub: 'جولة الأرشيف',
-    gameSetup: 'Game Setup',
-    lbl_team1: 'Team 1 Name',
-    lbl_team2: 'Team 2 Name',
-    lbl_apikey: 'API Key — API-Football (api-sports.io)',
-    apiNote: 'Free: 100 requests/day — Sign up at api-sports.io to get your key',
-    lbl_start: 'Start Search',
-    lbl_step1: 'Step 1 — Search for Team 1',
-    lbl_step2: 'Step 2 — Search for Team 2',
-    lbl_step3: 'Step 3 — Select a Match',
-    lbl_search: 'Search',
-    lbl_loadfx: 'Load Matches',
-    lbl_createcard: 'Create Card',
-    lbl_cancel: 'Cancel',
-    lbl_back: 'Back',
-    lbl_league: 'League',
-    lbl_season: 'Season',
-    lbl_result: 'Result',
-    lbl_target: 'Target',
-    lbl_starttimer: '▶ Start Timer',
-    lbl_stoptimer: '■ Stop',
-    lbl_revealall: 'Reveal All',
-    lbl_correctanswer: 'Correct Answer',
-    lbl_round: 'Round',
-    roundover: 'Round Over',
-    roundover_nobody: 'Nobody answered correctly',
-    roundover_correct: 'answered correctly!',
-    lbl_newcard: 'New Card',
-    lbl_endgame: 'End Game',
-    status_ready: 'Ready to play',
-    status_timing: 'Timer running...',
-    targetQ_scored: (name, num) => `Who scored goal #${num} for ${name}?`,
-    targetQ_assisted: (name, num) => `Who assisted goal #${num} for ${name}?`,
-    lbl_goal: 'Goal',
-    lbl_assist: 'Assist',
-    loading_teams: 'Searching...',
-    loading_fixtures: 'Loading matches...',
-    no_results: 'No results found',
-    select_team_first: 'Please select team 1 first',
-    select_fixture: 'Please select a fixture first',
-    error_api: 'API connection error — check your key',
-    t1_ctrl: 'Team 1',
-    t2_ctrl: 'Team 2',
-    no_events: 'No goals',
+// ── TRANSLATIONS ──
+const TX={
+ar:{
+  heroTitle:'جولة <span>الأرشيف</span>',heroSub:'The Archive Round',
+  secPlayers:'الفرق المتنافسة',secMatch:'معلومات المباراة',
+  secHev:'أهداف وتمريرات المضيف',secAev:'أهداف وتمريرات الضيف',secTarget:'المطلوب',
+  p1:'اسم الفريق الأول',p2:'اسم الفريق الثاني',
+  home:'الفريق المضيف',away:'الفريق الضيف',
+  hscore:'أهداف المضيف',ascore:'أهداف الضيف',season:'الموسم',league:'البطولة',
+  addEv:'إضافة هدف / تمريرة',
+  ttype:'نوع السؤال',tnum:'رقم الهدف',tteam:'لأي فريق؟',tcustom:'نص السؤال',tans:'الإجابة الصحيحة (للمضيف فقط)',
+  optScored:'من سجّل؟',optAssisted:'من صنع؟',optCustom:'سؤال مخصص',
+  optHome:'المضيف',optAway:'الضيف',
+  create:'إنشاء البطاقة والبدء',
+  roundLbl:'الجولة',timerStart:'ابدأ',timerStop:'إيقاف',revall:'كشف الكل',cans:'الإجابة الصحيحة',
+  ok:'صح',no:'خطأ',editCard:'← تعديل البطاقة',
+  newCard:'بطاقة جديدة',replay:'نفس البطاقة',
+  lblLeague:'البطولة',lblSeason:'الموسم',lblResult:'النتيجة',lblTarget:'المطلوب',
+  statusReady:'جاهز للعب',statusTiming:'الوقت يعمل...',
+  roTitle:'نهاية الجولة',roNobody:'لم يجب أحد بشكل صحيح',
+  roCorrect:(n,p)=>`أجاب ${n} بشكل صحيح! (+${p} نقطة)`,
+  noEvents:'—',lbl_G:'هدف',lbl_A:'تمريرة',
+  tq_scored:(team,n)=>`من سجّل الهدف رقم ${n} لـ ${team}؟`,
+  tq_assisted:(team,n)=>`من صنع الهدف رقم ${n} لـ ${team}؟`,
+  errFill:'يرجى ملء أسماء الفرق والبطولة على الأقل',
+  phPlayer:'اسم اللاعب',phMin:'د',phHome:'مثال: الاتحاد',phAway:'مثال: الأهلي',
+  phLeague:'مثال: دوري روشن السعودي',phSeason:'2024/2023',phP1:'مثال: الهلال',phP2:'مثال: النصر',
+},
+en:{
+  heroTitle:'The <span>Archive</span>',heroSub:'جولة الأرشيف',
+  secPlayers:'Competing Teams',secMatch:'Match Info',
+  secHev:'Home Goals & Assists',secAev:'Away Goals & Assists',secTarget:'Target Question',
+  p1:'Team 1 Name',p2:'Team 2 Name',
+  home:'Home Team',away:'Away Team',
+  hscore:'Home Goals',ascore:'Away Goals',season:'Season',league:'League',
+  addEv:'Add Goal / Assist',
+  ttype:'Question Type',tnum:'Goal Number',tteam:'Which Team?',tcustom:'Question Text',tans:'Correct Answer (host only)',
+  optScored:'Who scored?',optAssisted:'Who assisted?',optCustom:'Custom question',
+  optHome:'Home',optAway:'Away',
+  create:'Create Card & Start',
+  roundLbl:'Round',timerStart:'Start',timerStop:'Stop',revall:'Reveal All',cans:'Correct Answer',
+  ok:'✓',no:'✗',editCard:'← Edit Card',
+  newCard:'New Card',replay:'Same Card',
+  lblLeague:'League',lblSeason:'Season',lblResult:'Result',lblTarget:'Target',
+  statusReady:'Ready to play',statusTiming:'Timer running...',
+  roTitle:'Round Over',roNobody:'Nobody answered correctly',
+  roCorrect:(n,p)=>`${n} answered correctly! (+${p} pts)`,
+  noEvents:'—',lbl_G:'G',lbl_A:'A',
+  tq_scored:(team,n)=>`Who scored goal #${n} for ${team}?`,
+  tq_assisted:(team,n)=>`Who assisted goal #${n} for ${team}?`,
+  errFill:'Please fill in team names and league at minimum',
+  phPlayer:'Player name',phMin:'min',phHome:'e.g. Al-Ittihad',phAway:'e.g. Al-Ahli',
+  phLeague:'e.g. Saudi Pro League',phSeason:'2023/2024',phP1:'e.g. Al-Hilal',phP2:'e.g. Al-Nassr',
+}};
+
+let lang='ar';
+let evCtr={home:0,away:0};
+let G={};
+let timerIv=null,timerSec=30,timerOn=false;
+
+const t=(k,...a)=>{const v=TX[lang][k];return typeof v==='function'?v(...a):v??k;};
+const $=(id)=>document.getElementById(id);
+
+// ── LANG ──
+function toggleLang(){
+  lang=lang==='ar'?'en':'ar';
+  document.documentElement.lang=lang;
+  document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  document.body.classList.toggle('ltr',lang!=='ar');
+  applyTX();updateTargetPreview();
+}
+function applyTX(){
+  const s=(id,k)=>{const e=$(id);if(e)e.innerHTML=t(k);};
+  const p=(id,k)=>{const e=$(id);if(e)e.placeholder=t(k);};
+  s('hero-title','heroTitle');s('hero-sub','heroSub');
+  s('sec-players','secPlayers');s('sec-match','secMatch');
+  s('sec-hev','secHev');s('sec-aev','secAev');s('sec-target','secTarget');
+  s('lbl-p1','p1');s('lbl-p2','p2');s('lbl-home','home');s('lbl-away','away');
+  s('lbl-hscore','hscore');s('lbl-ascore','ascore');s('lbl-season','season');s('lbl-league','league');
+  s('lbl-addhome','addEv');s('lbl-addaway','addEv');
+  s('lbl-ttype','ttype');s('lbl-tnum','tnum');s('lbl-tteam','tteam');
+  s('lbl-tcustom','tcustom');s('lbl-tans','tans');
+  s('opt-scored','optScored');s('opt-assisted','optAssisted');s('opt-custom','optCustom');
+  s('opt-thome','optHome');s('opt-taway','optAway');
+  s('lbl-create','create');s('lbl-round','roundLbl');
+  s('lbl-tbtn','timerStart');s('lbl-revall','revall');s('lbl-cans','cans');
+  s('lbl-ok1','ok');s('lbl-no1','no');s('lbl-ok2','ok');s('lbl-no2','no');
+  s('lbl-edit','editCard');s('lbl-newcard','newCard');s('lbl-replay','replay');
+  p('inp-home','phHome');p('inp-away','phAway');p('inp-league','phLeague');
+  p('inp-season','phSeason');p('inp-p1','phP1');p('inp-p2','phP2');
+}
+
+// ── EVENTS BUILDER ──
+function addEvent(side){
+  const id=++evCtr[side];
+  const div=document.createElement('div');
+  div.className='event-item';div.id=`ev-${side}-${id}`;
+  div.innerHTML=`
+    <div class="ev-badge G" id="eb-${side}-${id}" onclick="toggleType('${side}',${id})">G</div>
+    <input type="text" placeholder="${t('phPlayer')}" id="ep-${side}-${id}" style="padding:8px 10px;font-size:13px">
+    <input type="text" placeholder="${t('phMin')}" id="em-${side}-${id}" style="padding:8px 6px;font-size:13px;text-align:center">
+    <button class="btn-danger" onclick="rmEvent('${side}',${id})">✕</button>`;
+  $(`list-${side}`).appendChild(div);
+}
+function toggleType(side,id){
+  const b=$(`eb-${side}-${id}`);
+  const isG=b.classList.contains('G');
+  b.classList.toggle('G',!isG);b.classList.toggle('A',isG);
+  b.textContent=isG?'A':'G';
+}
+function rmEvent(side,id){ const e=$(`ev-${side}-${id}`);if(e)e.remove(); }
+function getEvents(side){
+  return [...$(`list-${side}`).querySelectorAll('.event-item')]
+    .map(el=>{
+      const parts=el.id.split('-');const s=parts[1],i=parts[2];
+      const b=$(`eb-${s}-${i}`);
+      const player=$(`ep-${s}-${i}`).value.trim();
+      const min=$(`em-${s}-${i}`).value.trim();
+      if(!player)return null;
+      return{type:b.classList.contains('G')?'G':'A',player,minute:min};
+    }).filter(Boolean);
+}
+
+// ── TARGET PREVIEW ──
+function updateTargetPreview(){
+  const ttype=$('inp-ttype').value;
+  const isCustom=ttype==='custom';
+  $('fld-tteam').style.display=isCustom?'none':'';
+  $('fld-goalnum').style.display=isCustom?'none':'';
+  $('fld-tcustom').style.display=isCustom?'':'none';
+  let prev='';
+  if(isCustom){prev=$('inp-tcustom').value||'...';}
+  else{
+    const n=$('inp-tnum').value||1;
+    const ts=$('inp-tteam').value;
+    const tn=ts==='home'?($('inp-home').value||t('optHome')):($('inp-away').value||t('optAway'));
+    prev=ttype==='scored'?t('tq_scored',tn,n):t('tq_assisted',tn,n);
   }
-};
-
-// ══════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════
-let S = {
-  lang: 'ar',
-  apiKey: '',
-  teamInputs: ['', ''],
-  selectedTeams: [null, null],
-  selectedFixture: null,
-  matchData: null,
-  squares: [],
-  revealed: new Set(),
-  teamPoints: [0, 0],
-  teamStrikes: [0, 0],
-  teamEliminated: [false, false],
-  targetSquareIdx: -1,
-  targetAnswer: '',
-  correctTeam: -1,
-  timerInterval: null,
-  timerSeconds: 30,
-  timerRunning: false,
-  roundActive: true,
-};
-
-function tx(key, ...args) {
-  const t = TX[S.lang][key];
-  if (typeof t === 'function') return t(...args);
-  return t || key;
+  $('target-preview').textContent=prev;
 }
 
-// ══════════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════════
-function goTo(view) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + view).classList.add('active');
-}
+// ── START GAME ──
+function startGame(){
+  const p1=$('inp-p1').value.trim(),p2=$('inp-p2').value.trim();
+  const home=$('inp-home').value.trim(),away=$('inp-away').value.trim();
+  const league=$('inp-league').value.trim();
+  if(!p1||!p2||!home||!away||!league){alert(t('errFill'));return;}
 
-function setLangDir() {
-  if (S.lang === 'ar') {
-    document.documentElement.lang = 'ar';
-    document.documentElement.dir = 'rtl';
-    document.body.classList.remove('ltr');
-  } else {
-    document.documentElement.lang = 'en';
-    document.documentElement.dir = 'ltr';
-    document.body.classList.add('ltr');
+  const hs=parseInt($('inp-hscore').value)||0,as=parseInt($('inp-ascore').value)||0;
+  const season=$('inp-season').value.trim();
+  const homeEvents=getEvents('home'),awayEvents=getEvents('away');
+
+  const ttype=$('inp-ttype').value;
+  let tq='';
+  if(ttype==='custom'){tq=$('inp-tcustom').value.trim()||'?';}
+  else{
+    const n=$('inp-tnum').value||1;
+    const ts=$('inp-tteam').value;
+    const tn=ts==='home'?home:away;
+    tq=ttype==='scored'?t('tq_scored',tn,n):t('tq_assisted',tn,n);
   }
-}
+  const tans=$('inp-tans').value.trim()||'?';
 
-function toggleLang() {
-  S.lang = S.lang === 'ar' ? 'en' : 'ar';
-  setLangDir();
-  updateAllText();
-}
+  G={p1,p2,home,away,score:`${hs} - ${as}`,season,league,homeEvents,awayEvents,
+     targetQ:tq,targetAnswer:tans,squares:[],revealed:new Set(),
+     pts:[0,0],strikes:[0,0],eliminated:[false,false],roundActive:true};
 
-function updateAllText() {
-  const ids = {
-    'hero-title': 'heroTitle',
-    'hero-sub': 'heroSub',
-    'lbl-gamesetup': 'gameSetup',
-    'lbl-team1': 'lbl_team1',
-    'lbl-team2': 'lbl_team2',
-    'lbl-apikey': 'lbl_apikey',
-    'api-note-text': 'apiNote',
-    'lbl-start': 'lbl_start',
-    'lbl-step1': 'lbl_step1',
-    'lbl-step2': 'lbl_step2',
-    'lbl-step3': 'lbl_step3',
-    'lbl-search': 'lbl_search',
-    'btn-search-t1': 'lbl_search',
-    'lbl-loadfx': 'lbl_loadfx',
-    'lbl-createcard': 'lbl_createcard',
-    'lbl-cancel': 'lbl_cancel',
-    'lbl-starttimer': 'lbl_starttimer',
-    'lbl-revealall': 'lbl_revealall',
-    'lbl-correctanswer': 'lbl_correctanswer',
-    'lbl-round': 'lbl_round',
-    'lbl-newcard': 'lbl_newcard',
-    'lbl-endgame': 'lbl_endgame',
-    'status-bar': 'status_ready',
-    'ctrl-t1-label': 't1_ctrl',
-    'ctrl-t2-label': 't2_ctrl',
-  };
-  for (const [id, key] of Object.entries(ids)) {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = tx(key);
-  }
-  document.querySelectorAll('.back-lbl').forEach(el => el.textContent = tx('lbl_back'));
-
-  // placeholders
-  const p1 = document.getElementById('inp-team1');
-  const p2 = document.getElementById('inp-team2');
-  if (p1) p1.placeholder = S.lang === 'ar' ? 'الهلال' : 'Al-Hilal';
-  if (p2) p2.placeholder = S.lang === 'ar' ? 'النصر' : 'Al-Nassr';
-}
-
-// ══════════════════════════════════════════
-//  API
-// ══════════════════════════════════════════
-const API_BASE = 'https://v3.football.api-sports.io';
-
-async function apiGet(path) {
-  const res = await fetch(API_BASE + path, {
-    headers: { 'x-apisports-key': S.apiKey }
-  });
-  if (!res.ok) throw new Error('API error ' + res.status);
-  const data = await res.json();
-  if (data.errors && Object.keys(data.errors).length > 0) {
-    const msg = Object.values(data.errors)[0];
-    throw new Error(msg);
-  }
-  return data.response;
-}
-
-// ══════════════════════════════════════════
-//  SETUP
-// ══════════════════════════════════════════
-function startSetup() {
-  const t1 = document.getElementById('inp-team1').value.trim();
-  const t2 = document.getElementById('inp-team2').value.trim();
-  const key = document.getElementById('inp-apikey').value.trim();
-
-  if (!t1 || !t2) { alert(S.lang === 'ar' ? 'أدخل اسم الفريقين' : 'Enter both team names'); return; }
-  if (!key) { alert(S.lang === 'ar' ? 'أدخل مفتاح الـ API' : 'Enter your API key'); return; }
-
-  S.teamInputs = [t1, t2];
-  S.apiKey = key;
-  S.selectedTeams = [null, null];
-  S.selectedFixture = null;
-
-  document.getElementById('inp-search-team1').value = t1;
-  document.getElementById('inp-search-team2').value = t2;
-  document.getElementById('search-teams-header').textContent = t1 + ' vs ' + t2;
-
-  document.getElementById('section-team2-search').style.display = 'none';
-  document.getElementById('section-fixtures').style.display = 'none';
-  document.getElementById('results-team1').innerHTML = '';
-  document.getElementById('results-team2').innerHTML = '';
-  document.getElementById('results-fixtures').innerHTML = '';
-  document.getElementById('btn-create-card').disabled = true;
-
-  goTo('search');
-}
-
-// ══════════════════════════════════════════
-//  TEAM SEARCH
-// ══════════════════════════════════════════
-async function searchTeam(num) {
-  const inputId = num === 1 ? 'inp-search-team1' : 'inp-search-team2';
-  const resultsId = num === 1 ? 'results-team1' : 'results-team2';
-  const query = document.getElementById(inputId).value.trim();
-  if (!query) return;
-
-  const el = document.getElementById(resultsId);
-  el.innerHTML = `<div class="loading">${tx('loading_teams')}</div>`;
-
-  try {
-    const results = await apiGet(`/teams?name=${encodeURIComponent(query)}`);
-    renderTeamResults(results, num, el);
-  } catch(e) {
-    el.innerHTML = `<div class="error-msg">${tx('error_api')}: ${e.message}</div>`;
-  }
-}
-
-function renderTeamResults(results, num, container) {
-  if (!results || results.length === 0) {
-    container.innerHTML = `<div class="loading">${tx('no_results')}</div>`;
-    return;
-  }
-  container.innerHTML = '';
-  results.slice(0, 8).forEach(r => {
-    const team = r.team;
-    const div = document.createElement('div');
-    div.className = 'team-result';
-    div.onclick = () => selectTeam(num, r, div);
-    const logo = team.logo
-      ? `<img class="team-logo" src="${team.logo}" alt="" onerror="this.style.display='none'">`
-      : `<div class="team-logo-placeholder">⚽</div>`;
-    div.innerHTML = `
-      ${logo}
-      <div class="team-result-info">
-        <div class="team-result-name">${team.name}</div>
-        <div class="team-result-sub">${r.venue?.country || ''}</div>
-      </div>
-      <span class="check-icon">✓</span>
-    `;
-    container.appendChild(div);
-  });
-}
-
-function selectTeam(num, data, el) {
-  S.selectedTeams[num - 1] = data;
-  const containerId = num === 1 ? 'results-team1' : 'results-team2';
-  document.querySelectorAll('#' + containerId + ' .team-result').forEach(e => e.classList.remove('selected'));
-  el.classList.add('selected');
-
-  if (num === 1) {
-    document.getElementById('section-team2-search').style.display = 'block';
-    document.getElementById('section-fixtures').style.display = 'none';
-  } else {
-    document.getElementById('section-fixtures').style.display = 'block';
-    const season = new Date().getFullYear();
-    document.getElementById('inp-season').value = season;
-  }
-}
-
-// ══════════════════════════════════════════
-//  FIXTURE SEARCH
-// ══════════════════════════════════════════
-async function loadFixtures() {
-  if (!S.selectedTeams[0]) { alert(tx('select_team_first')); return; }
-
-  const season = document.getElementById('inp-season').value || new Date().getFullYear();
-  const el = document.getElementById('results-fixtures');
-  el.innerHTML = `<div class="loading">${tx('loading_fixtures')}</div>`;
-  document.getElementById('btn-create-card').disabled = true;
-  S.selectedFixture = null;
-
-  try {
-    let fixtures;
-    if (S.selectedTeams[1]) {
-      const id1 = S.selectedTeams[0].team.id;
-      const id2 = S.selectedTeams[1].team.id;
-      fixtures = await apiGet(`/fixtures/headtohead?h2h=${id1}-${id2}&season=${season}&last=30`);
-    } else {
-      const id1 = S.selectedTeams[0].team.id;
-      fixtures = await apiGet(`/fixtures?team=${id1}&season=${season}`);
-    }
-    renderFixtures(fixtures, el);
-  } catch(e) {
-    el.innerHTML = `<div class="error-msg">${tx('error_api')}: ${e.message}</div>`;
-  }
-}
-
-function renderFixtures(fixtures, container) {
-  if (!fixtures || fixtures.length === 0) {
-    container.innerHTML = `<div class="loading">${tx('no_results')}</div>`;
-    return;
-  }
-  container.innerHTML = '';
-  // Sort by date descending
-  fixtures.sort((a,b) => b.fixture.timestamp - a.fixture.timestamp);
-  fixtures.slice(0, 20).forEach(f => {
-    const home = f.teams.home;
-    const away = f.teams.away;
-    const sc = f.goals;
-    const date = new Date(f.fixture.date).toLocaleDateString(S.lang === 'ar' ? 'ar-SA' : 'en-GB');
-    const scoreStr = (sc.home !== null && sc.away !== null) ? `${sc.home} - ${sc.away}` : 'vs';
-
-    const div = document.createElement('div');
-    div.className = 'fixture-card';
-    div.onclick = () => selectFixture(f, div);
-    div.innerHTML = `
-      <div style="flex:1">
-        <div class="fixture-teams">
-          <div class="fixture-team-name">${home.name}</div>
-          <div class="fixture-score">${scoreStr}</div>
-          <div class="fixture-team-name away">${away.name}</div>
-        </div>
-        <div class="fixture-meta">${f.league.name} · ${date}</div>
-      </div>
-      <span class="check-icon">✓</span>
-    `;
-    container.appendChild(div);
-  });
-}
-
-function selectFixture(fixture, el) {
-  S.selectedFixture = fixture;
-  document.querySelectorAll('#results-fixtures .fixture-card').forEach(e => e.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('btn-create-card').disabled = false;
-}
-
-// ══════════════════════════════════════════
-//  CREATE CARD
-// ══════════════════════════════════════════
-async function createCard() {
-  if (!S.selectedFixture) { alert(tx('select_fixture')); return; }
-
-  const btn = document.getElementById('btn-create-card');
-  btn.disabled = true;
-  btn.querySelector('span').textContent = S.lang === 'ar' ? '...' : '...';
-
-  try {
-    const fid = S.selectedFixture.fixture.id;
-    const events = await apiGet(`/fixtures/events?fixture=${fid}`);
-    buildMatchData(S.selectedFixture, events || []);
-    initGame();
-    goTo('game');
-  } catch(e) {
-    alert(tx('error_api') + ': ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.querySelector('span').textContent = tx('lbl_createcard');
-  }
-}
-
-function buildMatchData(fixture, events) {
-  const home = fixture.teams.home;
-  const away = fixture.teams.away;
-
-  // Parse goals+assists
-  const homeEvents = [];
-  const awayEvents = [];
-
-  events.forEach(e => {
-    if (e.type === 'Goal' && e.detail !== 'Missed Penalty') {
-      const isHome = e.team.id === home.id;
-      const entry = {
-        minute: e.time.elapsed + (e.time.extra ? '+' + e.time.extra : ''),
-        player: e.player.name || '?',
-        type: 'G'
-      };
-      (isHome ? homeEvents : awayEvents).push(entry);
-      // Assist
-      if (e.assist && e.assist.name) {
-        const assist = {
-          minute: e.time.elapsed + (e.time.extra ? '+' + e.time.extra : ''),
-          player: e.assist.name,
-          type: 'A'
-        };
-        (isHome ? homeEvents : awayEvents).push(assist);
-      }
-    }
-  });
-
-  S.matchData = {
-    league: fixture.league.name,
-    season: fixture.league.season,
-    homeTeam: { name: home.name, logo: home.logo },
-    awayTeam: { name: away.name, logo: away.logo },
-    score: `${fixture.goals.home ?? '?'} - ${fixture.goals.away ?? '?'}`,
-    homeEvents,
-    awayEvents,
-  };
-}
-
-// ══════════════════════════════════════════
-//  BUILD SQUARES
-// ══════════════════════════════════════════
-function buildSquares() {
-  const M = S.matchData;
-  const squares = [];
-  let idx = 0;
-
-  function addSq(type, label, value, meta = {}) {
-    squares.push({ id: ++idx, type, label, value, meta });
-  }
-
-  addSq('league', tx('lbl_league'), M.league);
-  addSq('season', tx('lbl_season'), String(M.season));
-  addSq('team-home', null, M.homeTeam.name, { logo: M.homeTeam.logo });
-  addSq('team-away', null, M.awayTeam.name, { logo: M.awayTeam.logo });
-  addSq('score', tx('lbl_result'), M.score);
-
-  // Generate المطلوب
-  const allGoals = [
-    ...M.homeEvents.filter(e => e.type === 'G').map((e,i) => ({ ...e, teamName: M.homeTeam.name, goalNum: i+1, side: 'home' })),
-    ...M.awayEvents.filter(e => e.type === 'G').map((e,i) => ({ ...e, teamName: M.awayTeam.name, goalNum: i+1, side: 'away' })),
-  ];
-
-  // Check which goals have assists
-  const goalsWithAssists = allGoals.filter(g => {
-    const pool = g.side === 'home' ? M.homeEvents : M.awayEvents;
-    const gIdx = pool.filter(e => e.type === 'G').indexOf(pool.filter(e => e.type === 'G')[g.goalNum - 1]);
-    return pool.some(e => e.type === 'A' && e.minute === g.minute);
-  });
-
-  let targetQ = '', targetAnswer = '';
-  if (allGoals.length > 0) {
-    const pickGoal = allGoals[Math.floor(Math.random() * allGoals.length)];
-    const askAssist = goalsWithAssists.length > 0 && Math.random() > 0.5;
-    if (askAssist && goalsWithAssists.includes(pickGoal)) {
-      targetQ = tx('targetQ_assisted', pickGoal.teamName, pickGoal.goalNum);
-      const pool = pickGoal.side === 'home' ? M.homeEvents : M.awayEvents;
-      const aEv = pool.find(e => e.type === 'A' && e.minute === pickGoal.minute);
-      targetAnswer = aEv ? aEv.player : pickGoal.player;
-    } else {
-      targetQ = tx('targetQ_scored', pickGoal.teamName, pickGoal.goalNum);
-      targetAnswer = pickGoal.player;
-    }
-  } else {
-    targetQ = S.lang === 'ar' ? 'من لعب في هذه المباراة؟' : 'Who played in this match?';
-    targetAnswer = M.homeTeam.name;
-  }
-
-  addSq('target', tx('lbl_target'), targetQ);
-  S.targetSquareIdx = idx - 1; // 0-indexed
-  S.targetAnswer = targetAnswer;
-
-  // Event squares
-  const maxLen = Math.max(M.homeEvents.length, M.awayEvents.length);
-  for (let i = 0; i < maxLen; i++) {
-    if (M.homeEvents[i]) {
-      const e = M.homeEvents[i];
-      addSq('event-home', null, e.player, { type: e.type, minute: e.minute, side: 'home' });
-    }
-    if (M.awayEvents[i]) {
-      const e = M.awayEvents[i];
-      addSq('event-away', null, e.player, { type: e.type, minute: e.minute, side: 'away' });
-    }
-  }
-
-  S.squares = squares;
-  S.revealed = new Set();
-}
-
-// ══════════════════════════════════════════
-//  GAME INIT
-// ══════════════════════════════════════════
-function initGame() {
-  stopTimer();
   buildSquares();
-  S.teamStrikes = [0, 0];
-  S.teamEliminated = [false, false];
-  S.roundActive = true;
-  S.correctTeam = -1;
-
-  const M = S.matchData;
-  // Header names
-  document.getElementById('gh-team1-name').textContent = M.homeTeam.name;
-  document.getElementById('gh-team2-name').textContent = M.awayTeam.name;
-  document.getElementById('ctrl-t1-label').textContent = M.homeTeam.name;
-  document.getElementById('ctrl-t2-label').textContent = M.awayTeam.name;
-  document.getElementById('ro-t1-name').textContent = M.homeTeam.name;
-  document.getElementById('ro-t2-name').textContent = M.awayTeam.name;
-
-  updateScoreDisplay();
+  renderGameHeader();
   renderCard();
   resetTimer();
-  updateButtons();
-  document.getElementById('answer-reveal').classList.remove('visible');
-  document.getElementById('answer-text').textContent = S.targetAnswer;
-  document.getElementById('status-bar').textContent = tx('status_ready');
-  document.getElementById('status-bar').classList.remove('active-team');
-  document.getElementById('round-over-overlay').classList.remove('show');
+  updateCtrlBtns();
+  $('answer-box').classList.remove('show');
+  $('answer-val').textContent=G.targetAnswer;
+  $('status-bar').textContent=t('statusReady');
+  $('status-bar').className='status-bar';
+  $('overlay').classList.remove('show');
+  goTo('game');
 }
 
-// ══════════════════════════════════════════
-//  RENDER CARD
-// ══════════════════════════════════════════
-function renderCard() {
-  const M = S.matchData;
-  const card = document.getElementById('match-card');
+// ── SQUARES ──
+function buildSquares(){
+  const sq=[];let n=0;
+  const mk=(type,value,meta={})=>sq.push({id:++n,type,value,meta});
+  mk('league',G.league);mk('season',G.season||'—');
+  mk('team-home',G.home);mk('team-away',G.away);mk('score',G.score);
+  mk('target',G.targetQ);
+  G.homeEvents.forEach(e=>mk('event-home',e.player,{type:e.type,minute:e.minute}));
+  G.awayEvents.forEach(e=>mk('event-away',e.player,{type:e.type,minute:e.minute}));
+  G.squares=sq;G.revealed=new Set();
+}
 
-  const leagueSq = S.squares[0];
-  const seasonSq = S.squares[1];
-  const homeTeamSq = S.squares[2];
-  const awayTeamSq = S.squares[3];
-  const scoreSq = S.squares[4];
-  const targetSq = S.squares[5];
+// ── RENDER CARD ──
+const isRev=id=>G.revealed.has(id);
 
-  const homeEvSqs = S.squares.filter(s => s.type === 'event-home');
-  const awayEvSqs = S.squares.filter(s => s.type === 'event-away');
+function rInfo(sq){
+  return isRev(sq.id)
+    ?`<span class="sq revealed sq-info">${sq.value}</span>`
+    :`<span class="sq hidden sq-info" onclick="revSq(${sq.id})">${sq.id}</span>`;
+}
+function rTeam(sq,name){
+  return isRev(sq.id)
+    ?`<div class="sq revealed sq-team cteam"><div class="cteam-name">${name}</div></div>`
+    :`<div class="sq hidden sq-team" onclick="revSq(${sq.id})">${sq.id}</div>`;
+}
+function rScore(sq){
+  return isRev(sq.id)
+    ?`<div class="sq revealed sq-score cscore-wrap"><div class="cscore-lbl">${t('lblResult')}</div><div class="cscore-val">${sq.value}</div></div>`
+    :`<div class="sq hidden sq-score" onclick="revSq(${sq.id})">${sq.id}</div>`;
+}
+function rTarget(sq){
+  return isRev(sq.id)
+    ?`<div class="sq revealed sq-target">${sq.value}</div>`
+    :`<div class="sq hidden sq-target" onclick="revSq(${sq.id})">${sq.id}</div>`;
+}
+function rEvent(sq){
+  return isRev(sq.id)
+    ?`<div class="sq revealed sq-event">
+        <span class="ev-type ${sq.meta.type}">${t('lbl_'+sq.meta.type)}</span>
+        <span class="ev-player">${sq.value}</span>
+        <span class="ev-min">${sq.meta.minute?sq.meta.minute+"'":''}</span>
+      </div>`
+    :`<div class="sq hidden sq-event" onclick="revSq(${sq.id})">${sq.id}</div>`;
+}
 
-  card.innerHTML = `
-    <!-- League & Season -->
-    <div class="card-top">
-      <div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px">
-        <span class="card-info-label">${tx('lbl_league')}</span>
-        ${renderInfoSq(leagueSq)}
-      </div>
-      <div style="padding:8px 14px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px">
-        <span class="card-info-label">${tx('lbl_season')}</span>
-        ${renderInfoSq(seasonSq)}
-      </div>
+function renderCard(){
+  const [leag,seas,hteam,ateam,score,targ]=G.squares;
+  const hEv=G.squares.filter(s=>s.type==='event-home');
+  const aEv=G.squares.filter(s=>s.type==='event-away');
+  const hEvHtml=hEv.length?hEv.map(rEvent).join(''):`<div class="no-events">${t('noEvents')}</div>`;
+  const aEvHtml=aEv.length?aEv.map(rEvent).join(''):`<div class="no-events">${t('noEvents')}</div>`;
+
+  $('match-card').innerHTML=`
+    <div class="card-meta">
+      <div class="cmeta-cell"><span class="cmeta-label">${t('lblLeague')}</span>${rInfo(leag)}</div>
+      <div class="cmeta-cell"><span class="cmeta-label">${t('lblSeason')}</span>${rInfo(seas)}</div>
     </div>
-
-    <!-- Teams & Score -->
-    <div class="card-teams-section">
-      ${renderTeamSq(homeTeamSq, M.homeTeam)}
-      ${renderScoreSq(scoreSq)}
-      ${renderTeamSq(awayTeamSq, M.awayTeam)}
-    </div>
-
-    <!-- Target -->
-    <div class="card-target-row">
-      <div class="card-target-label">${tx('lbl_target')}</div>
-      ${renderTargetSq(targetSq)}
-    </div>
-
-    <!-- Events -->
+    <div class="card-teams">${rTeam(hteam,G.home)}${rScore(score)}${rTeam(ateam,G.away)}</div>
+    <div class="card-target"><div class="ctarget-lbl">${t('lblTarget')}</div>${rTarget(targ)}</div>
     <div class="card-events">
-      <div class="card-events-col">
-        <div class="events-header">${M.homeTeam.name}</div>
-        ${homeEvSqs.length === 0
-          ? `<div style="padding:10px 12px;text-align:center;color:var(--text-dim);font-size:12px">${tx('no_events')}</div>`
-          : homeEvSqs.map(renderEventSq).join('')}
-      </div>
-      <div class="card-events-col">
-        <div class="events-header">${M.awayTeam.name}</div>
-        ${awayEvSqs.length === 0
-          ? `<div style="padding:10px 12px;text-align:center;color:var(--text-dim);font-size:12px">${tx('no_events')}</div>`
-          : awayEvSqs.map(renderEventSq).join('')}
-      </div>
-    </div>
-  `;
-}
-
-function sqIsRevealed(sq) { return S.revealed.has(sq.id); }
-
-function renderInfoSq(sq) {
-  if (sqIsRevealed(sq)) {
-    return `<span class="sq-revealed" style="font-weight:700;font-size:14px">${sq.value}</span>`;
-  }
-  return `<span class="info-sq sq-hidden" onclick="revealSquare(${sq.id})" title="${sq.id}">${sq.id}</span>`;
-}
-
-function renderTeamSq(sq, team) {
-  if (sqIsRevealed(sq)) {
-    const logo = team.logo
-      ? `<img class="card-team-logo sq-revealed" src="${team.logo}" alt="" onerror="this.style.display='none'">`
-      : `<div class="card-team-logo-ph">⚽</div>`;
-    return `<div class="card-team sq-revealed">${logo}<div class="card-team-name">${team.name}</div></div>`;
-  }
-  return `<div class="team-sq sq-hidden" onclick="revealSquare(${sq.id})">${sq.id}</div>`;
-}
-
-function renderScoreSq(sq) {
-  if (sqIsRevealed(sq)) {
-    return `<div class="card-score-center sq-revealed">
-      <div class="card-score-label">${tx('lbl_result')}</div>
-      <div class="card-score-value">${sq.value}</div>
+      <div class="cevents-col"><div class="cevents-head">${G.home}</div>${hEvHtml}</div>
+      <div class="cevents-col"><div class="cevents-head">${G.away}</div>${aEvHtml}</div>
     </div>`;
-  }
-  return `<div class="score-sq sq-hidden" onclick="revealSquare(${sq.id})">${sq.id}</div>`;
 }
 
-function renderTargetSq(sq) {
-  if (sqIsRevealed(sq)) {
-    return `<div class="target-sq sq-revealed"><span class="sq-value">${sq.value}</span></div>`;
-  }
-  return `<div class="target-sq sq-hidden" onclick="revealSquare(${sq.id})" style="width:100%">${sq.id}</div>`;
+function revSq(id){
+  if(!G.roundActive||G.revealed.has(id))return;
+  G.revealed.add(id);renderCard();
+}
+function revealAll(){
+  G.squares.forEach(s=>G.revealed.add(s.id));renderCard();stopTimer();
+  if(G.roundActive){G.roundActive=false;setTimeout(()=>showOverlay(false),400);}
 }
 
-function renderEventSq(sq) {
-  if (sqIsRevealed(sq)) {
-    return `<div class="event-sq sq-revealed">
-      <span class="event-type ${sq.meta.type}">${sq.meta.type === 'G' ? tx('lbl_goal') : tx('lbl_assist')}</span>
-      <span class="event-player">${sq.value}</span>
-      <span class="event-minute">${sq.meta.minute}'</span>
-    </div>`;
-  }
-  return `<div class="event-sq sq-hidden" onclick="revealSquare(${sq.id})">${sq.id}</div>`;
+// ── GAME HEADER ──
+function renderGameHeader(){
+  $('gh-p1').textContent=G.p1;$('gh-p2').textContent=G.p2;
+  $('ctrl-p1-lbl').textContent=G.p1;$('ctrl-p2-lbl').textContent=G.p2;
+  $('ro-p1n').textContent=G.p1;$('ro-p2n').textContent=G.p2;
+  updateScore();
 }
-
-function revealSquare(id) {
-  if (!S.roundActive) return;
-  if (S.revealed.has(id)) return;
-  S.revealed.add(id);
-  renderCard();
+function updateScore(){
+  $('gh-p1-pts').textContent=G.pts[0];$('gh-p2-pts').textContent=G.pts[1];
+  $('ro-p1p').textContent=G.pts[0];$('ro-p2p').textContent=G.pts[1];
+  [0,1].forEach(i=>{
+    const el=$(i===0?'gh-p1-str':'gh-p2-str');el.innerHTML='';
+    for(let j=0;j<2;j++){const d=document.createElement('div');d.className='sdot'+(j<G.strikes[i]?' hit':'');el.appendChild(d);}
+  });
 }
-
-function revealAll() {
-  S.squares.forEach(sq => S.revealed.add(sq.id));
-  renderCard();
-  stopTimer();
-  if (S.roundActive) {
-    S.roundActive = false;
-    setTimeout(() => showRoundOver(false), 500);
-  }
-}
-
-// ══════════════════════════════════════════
-//  TIMER
-// ══════════════════════════════════════════
-function resetTimer() {
-  stopTimer();
-  S.timerSeconds = 30;
-  const el = document.getElementById('timer-display');
-  el.textContent = '30';
-  el.style.color = '';
-  el.classList.remove('warning');
-  document.getElementById('btn-timer').querySelector('span').textContent = tx('lbl_starttimer');
-  S.timerRunning = false;
-}
-
-function startTimer() {
-  if (S.timerRunning) {
-    stopTimer();
-    return;
-  }
-  if (!S.roundActive) return;
-  S.timerRunning = true;
-  document.getElementById('btn-timer').querySelector('span').textContent = tx('lbl_stoptimer');
-  document.getElementById('status-bar').textContent = tx('status_timing');
-  document.getElementById('status-bar').classList.add('active-team');
-
-  S.timerInterval = setInterval(() => {
-    S.timerSeconds--;
-    const el = document.getElementById('timer-display');
-    el.textContent = S.timerSeconds;
-    if (S.timerSeconds <= 10) {
-      el.classList.add('warning');
-    }
-    if (S.timerSeconds <= 0) {
-      stopTimer();
-      el.textContent = '0';
-    }
-  }, 1000);
-}
-
-function stopTimer() {
-  if (S.timerInterval) { clearInterval(S.timerInterval); S.timerInterval = null; }
-  S.timerRunning = false;
-  const btn = document.getElementById('btn-timer');
-  if (btn) btn.querySelector('span').textContent = tx('lbl_starttimer');
-}
-
-// ══════════════════════════════════════════
-//  ANSWER LOGIC
-// ══════════════════════════════════════════
-function markAnswer(teamIdx, correct) {
-  if (!S.roundActive) return;
-  if (S.teamEliminated[teamIdx]) return;
-
-  stopTimer();
-  resetTimer();
-
-  if (correct) {
-    // Count hidden squares for points
-    const hiddenCount = S.squares.length - S.revealed.size;
-    S.teamPoints[teamIdx] += hiddenCount;
-    S.correctTeam = teamIdx;
-    S.roundActive = false;
-
-    updateScoreDisplay();
-    revealAll();
-
-    setTimeout(() => showRoundOver(true, teamIdx, hiddenCount), 600);
-  } else {
-    S.teamStrikes[teamIdx]++;
-    if (S.teamStrikes[teamIdx] >= 2) {
-      S.teamEliminated[teamIdx] = true;
-    }
-    updateScoreDisplay();
-    updateButtons();
-
-    // Check if both eliminated
-    if (S.teamEliminated[0] && S.teamEliminated[1]) {
-      S.roundActive = false;
-      revealAll();
-      setTimeout(() => showRoundOver(false), 600);
-    }
-  }
-}
-
-function updateScoreDisplay() {
-  document.getElementById('gh-team1-pts').textContent = S.teamPoints[0];
-  document.getElementById('gh-team2-pts').textContent = S.teamPoints[1];
-  document.getElementById('ro-t1-pts').textContent = S.teamPoints[0];
-  document.getElementById('ro-t2-pts').textContent = S.teamPoints[1];
-
-  // Strikes
-  [0, 1].forEach(i => {
-    const el = document.getElementById(i === 0 ? 'gh-team1-strikes' : 'gh-team2-strikes');
-    el.innerHTML = '';
-    for (let j = 0; j < 2; j++) {
-      const d = document.createElement('div');
-      d.className = 'strike-dot' + (j < S.teamStrikes[i] ? ' active' : '');
-      el.appendChild(d);
-    }
+function updateCtrlBtns(){
+  [0,1].forEach(i=>{
+    const dis=G.eliminated[i]||!G.roundActive;
+    $(i===0?'b-p1-ok':'b-p2-ok').disabled=dis;
+    $(i===0?'b-p1-no':'b-p2-no').disabled=dis;
   });
 }
 
-function updateButtons() {
-  document.getElementById('btn-t1-correct').disabled = S.teamEliminated[0] || !S.roundActive;
-  document.getElementById('btn-t1-wrong').disabled = S.teamEliminated[0] || !S.roundActive;
-  document.getElementById('btn-t2-correct').disabled = S.teamEliminated[1] || !S.roundActive;
-  document.getElementById('btn-t2-wrong').disabled = S.teamEliminated[1] || !S.roundActive;
-
-  if (S.teamEliminated[0]) document.getElementById('btn-t1-correct').style.opacity = '0.2';
-  if (S.teamEliminated[1]) document.getElementById('btn-t2-correct').style.opacity = '0.2';
+// ── TIMER ──
+function resetTimer(){
+  stopTimer();timerSec=30;
+  $('timer').textContent='30';$('timer').className='timer';
+  $('lbl-tbtn').textContent=t('timerStart');
+}
+function toggleTimer(){timerOn?stopTimer():startTmr();}
+function startTmr(){
+  if(!G.roundActive)return;
+  timerOn=true;$('lbl-tbtn').textContent=t('timerStop');
+  $('status-bar').textContent=t('statusTiming');$('status-bar').className='status-bar on';
+  timerIv=setInterval(()=>{
+    timerSec--;$('timer').textContent=timerSec;
+    if(timerSec<=10)$('timer').classList.add('warn');
+    if(timerSec<=0){stopTimer();$('timer').textContent='0';}
+  },1000);
+}
+function stopTimer(){
+  if(timerIv){clearInterval(timerIv);timerIv=null;}
+  timerOn=false;
+  const b=$('lbl-tbtn');if(b)b.textContent=t('timerStart');
 }
 
-function toggleAnswerReveal() {
-  const el = document.getElementById('answer-reveal');
-  el.classList.toggle('visible');
-}
-
-// ══════════════════════════════════════════
-//  ROUND OVER
-// ══════════════════════════════════════════
-function showRoundOver(hasWinner, winnerIdx, points) {
-  const overlay = document.getElementById('round-over-overlay');
-  const title = document.getElementById('round-over-title');
-  const msg = document.getElementById('round-over-msg');
-
-  title.textContent = tx('roundover');
-  if (hasWinner) {
-    const winName = winnerIdx === 0 ? S.matchData.homeTeam.name : S.matchData.awayTeam.name;
-    msg.innerHTML = `<span style="color:var(--accent)">${winName}</span> ${tx('roundover_correct')} (+${points} ${S.lang === 'ar' ? 'نقطة' : 'pts'})`;
+// ── ANSWERS ──
+function markAnswer(ti,correct){
+  if(!G.roundActive||G.eliminated[ti])return;
+  stopTimer();resetTimer();
+  if(correct){
+    const hidden=G.squares.length-G.revealed.size;
+    G.pts[ti]+=hidden;G.roundActive=false;
+    updateScore();revealAll();
+    setTimeout(()=>showOverlay(true,ti,hidden),500);
   } else {
-    msg.textContent = tx('roundover_nobody');
+    G.strikes[ti]++;
+    if(G.strikes[ti]>=2)G.eliminated[ti]=true;
+    updateScore();updateCtrlBtns();
+    if(G.eliminated[0]&&G.eliminated[1]){G.roundActive=false;revealAll();setTimeout(()=>showOverlay(false),500);}
   }
-
-  overlay.classList.add('show');
 }
 
-function newCard() {
-  document.getElementById('round-over-overlay').classList.remove('show');
-  goTo('search');
-  S.selectedFixture = null;
-  S.selectedTeams = [null, null];
-  document.getElementById('section-team2-search').style.display = 'none';
-  document.getElementById('section-fixtures').style.display = 'none';
-  document.getElementById('results-team1').innerHTML = '';
-  document.getElementById('results-team2').innerHTML = '';
-  document.getElementById('results-fixtures').innerHTML = '';
-  document.getElementById('btn-create-card').disabled = true;
-  // Pre-fill search inputs
-  document.getElementById('inp-search-team1').value = S.teamInputs[0];
-  document.getElementById('inp-search-team2').value = S.teamInputs[1];
+function showOverlay(win,ti,pts){
+  $('ro-title').textContent=t('roTitle');
+  $('ro-msg').innerHTML=win
+    ?`<span style="color:var(--accent)">${ti===0?G.p1:G.p2}</span> — ${t('roCorrect',ti===0?G.p1:G.p2,pts).split('—')[1]||t('roCorrect',ti===0?G.p1:G.p2,pts)}`
+    :t('roNobody');
+  if(win) $('ro-msg').innerHTML=`<span style="color:var(--accent)">${ti===0?G.p1:G.p2}</span> ${t('roCorrect','',pts).replace('  ',' ')}`;
+  $('overlay').classList.add('show');
+}
+function closeOverlay(){$('overlay').classList.remove('show');}
+function toggleAnswer(){$('answer-box').classList.toggle('show');}
+function replayCard(){
+  G.strikes=[0,0];G.eliminated=[false,false];G.roundActive=true;G.revealed=new Set();
+  renderCard();resetTimer();updateCtrlBtns();
+  $('answer-box').classList.remove('show');
+  $('status-bar').textContent=t('statusReady');$('status-bar').className='status-bar';
 }
 
-function endGame() {
-  document.getElementById('round-over-overlay').classList.remove('show');
-  // Reset points for new game
-  S.teamPoints = [0, 0];
-  document.getElementById('gh-team1-pts').textContent = '0';
-  document.getElementById('gh-team2-pts').textContent = '0';
-  goTo('setup');
-}
+// ── NAV ──
+function goTo(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));$('view-'+v).classList.add('active');}
+function goSetup(){stopTimer();goTo('setup');}
 
-// ══════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════
-setLangDir();
-updateAllText();
+// ── INIT ──
+applyTX();updateTargetPreview();
 </script>
 </body>
 </html>
