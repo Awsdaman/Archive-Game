@@ -62,12 +62,17 @@ label{font-size:12px;color:var(--text-dim);display:block;margin-bottom:5px}
 /* GAME */
 #view-game{overflow:hidden}
 .game-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 16px;gap:10px;border-bottom:1px solid var(--border2);flex-shrink:0}
-.tsb{display:flex;flex-direction:column;gap:3px}
+.tsb{display:flex;flex-direction:column;gap:3px;padding:8px 12px;border-radius:10px;border:1px solid transparent;transition:0.3s}
 .tsb.left{align-items:flex-end;text-align:right}
 .tsb.right{align-items:flex-start;text-align:left}
 body.ltr .tsb.left{align-items:flex-start;text-align:left}
 body.ltr .tsb.right{align-items:flex-end;text-align:right}
-.tsb-name{font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Turn Active Styling */
+.tsb.active-turn { background: var(--surface2); border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+.tsb.active-turn .tsb-name { color: var(--text); }
+
+.tsb-name{font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:0.3s}
 .tsb-pts{font-family:'Oswald',sans-serif;font-size:30px;font-weight:700;color:var(--accent);line-height:1}
 .tsb-strikes{display:flex;gap:4px}
 .tsb.right .tsb-strikes{flex-direction:row-reverse}
@@ -135,14 +140,8 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
 .btn-timer-ctrl:hover{border-color:var(--accent);color:var(--accent)}
 .btn-revall{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border2)}
 .btn-revall:hover{color:var(--text)}
-.btn-key{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;cursor:pointer;font-size:14px;transition:.2s;flex-shrink:0}
-.btn-key:hover{border-color:var(--accent);color:var(--accent)}
 .status-bar{font-size:11px;color:var(--text-dim);text-align:center}
 .status-bar.on{color:var(--accent);font-weight:700}
-.answer-box{background:var(--surface2);border:1px solid var(--accent);border-radius:7px;padding:8px 12px;display:none}
-.answer-box.show{display:block;animation:fadeIn .2s}
-.ab-lbl{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
-.ab-val{font-weight:700;color:var(--accent);font-size:14px}
 .team-ctrl-lbl{font-size:10px;color:var(--text-dim);text-align:center;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
 .team-btns{display:flex;gap:6px}
 
@@ -161,11 +160,23 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
 
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+
+/* Saved rounds */
+.saved-card{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:.2s}
+.saved-card:hover{border-color:var(--border)}
+.saved-card-info{flex:1;min-width:0}
+.saved-card-title{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.saved-card-meta{font-size:11px;color:var(--text-dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.saved-card-btns{display:flex;gap:6px;flex-shrink:0}
+.btn-load{background:var(--accent-dim);color:var(--accent);border:1px solid var(--border);border-radius:6px;padding:6px 12px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;transition:.15s}
+.btn-load:hover{background:rgba(200,241,53,.18)}
+.saved-empty{text-align:center;padding:14px;color:var(--text-dim);font-size:12px}
+.save-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0a0a0e;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;padding:10px 22px;border-radius:20px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
+.save-toast.show{opacity:1}
 </style>
 </head>
 <body>
 
-<!-- ════ SETUP VIEW ════ -->
 <div id="view-setup" class="view active">
   <div class="topbar">
     <span class="logo">⚽ Archive</span>
@@ -177,7 +188,6 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
       <p id="hero-sub">The Archive Round</p>
     </div>
 
-    <!-- Competing teams (players) -->
     <div class="sec-card">
       <div class="sec-title" id="sec-players">الفرق المتنافسة</div>
       <div class="row2">
@@ -186,7 +196,6 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
       </div>
     </div>
 
-    <!-- Match info -->
     <div class="sec-card">
       <div class="sec-title" id="sec-match">معلومات المباراة</div>
       <div class="row2">
@@ -201,21 +210,18 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
       <div class="field"><label id="lbl-league">البطولة</label><input id="inp-league" type="text" placeholder="مثال: دوري روشن السعودي"></div>
     </div>
 
-    <!-- Home events -->
     <div class="sec-card">
       <div class="sec-title" id="sec-hev">أهداف وتمريرات المضيف</div>
       <div id="list-home" style="display:flex;flex-direction:column;gap:7px"></div>
       <button class="add-ev-btn" onclick="addEvent('home')">+ <span id="lbl-addhome">إضافة هدف / تمريرة</span></button>
     </div>
 
-    <!-- Away events -->
     <div class="sec-card">
       <div class="sec-title" id="sec-aev">أهداف وتمريرات الضيف</div>
       <div id="list-away" style="display:flex;flex-direction:column;gap:7px"></div>
       <button class="add-ev-btn" onclick="addEvent('away')">+ <span id="lbl-addaway">إضافة هدف / تمريرة</span></button>
     </div>
 
-    <!-- Target -->
     <div class="sec-card">
       <div class="sec-title" id="sec-target">المطلوب</div>
       <div class="row2">
@@ -250,14 +256,26 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
       <div class="target-preview" id="target-preview"></div>
     </div>
 
-    <button class="btn-primary" onclick="startGame()"><span id="lbl-create">إنشاء البطاقة والبدء</span></button>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:10px">
+      <button class="btn-primary" onclick="startGame()"><span id="lbl-create">إنشاء البطاقة والبدء</span></button>
+      <button class="btn-secondary" style="white-space:nowrap;padding:14px 18px" onclick="saveRound()">💾 <span id="lbl-save">حفظ</span></button>
+    </div>
+
+    <!-- Saved Rounds Library -->
+    <div class="sec-card" id="saved-section" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="sec-title" id="sec-saved">الجولات المحفوظة</div>
+        <span id="saved-count" style="font-size:11px;color:var(--text-dim)"></span>
+      </div>
+      <div id="saved-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
   </div>
 </div>
 
-<!-- ════ GAME VIEW ════ -->
 <div id="view-game" class="view">
   <div class="game-header">
-    <div class="tsb left">
+    <div class="tsb left" id="tsb-p1">
       <div class="tsb-name" id="gh-p1">ف1</div>
       <div class="tsb-pts" id="gh-p1-pts">0</div>
       <div class="tsb-strikes" id="gh-p1-str"></div>
@@ -266,7 +284,7 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
       <div class="round-lbl" id="lbl-round">الجولة</div>
       <div class="timer" id="timer">30</div>
     </div>
-    <div class="tsb right">
+    <div class="tsb right" id="tsb-p2">
       <div class="tsb-name" id="gh-p2">ف2</div>
       <div class="tsb-pts" id="gh-p2-pts">0</div>
       <div class="tsb-strikes" id="gh-p2-str"></div>
@@ -282,11 +300,6 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
     <div class="ctrl-row">
       <button class="ctrl-btn btn-timer-ctrl" onclick="toggleTimer()">▶ <span id="lbl-tbtn">ابدأ</span></button>
       <button class="ctrl-btn btn-revall" onclick="revealAll()"><span id="lbl-revall">كشف الكل</span></button>
-      <button class="btn-key" onclick="toggleAnswer()">🔑</button>
-    </div>
-    <div class="answer-box" id="answer-box">
-      <div class="ab-lbl" id="lbl-cans">الإجابة الصحيحة</div>
-      <div class="ab-val" id="answer-val">—</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div>
@@ -310,7 +323,6 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
   </div>
 </div>
 
-<!-- Round Over Overlay -->
 <div class="overlay" id="overlay">
   <div class="overlay-box">
     <h2 id="ro-title">نهاية الجولة</h2>
@@ -327,6 +339,8 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
   </div>
 </div>
 
+<div class="save-toast" id="save-toast">✓ تم الحفظ</div>
+
 <script>
 // ── TRANSLATIONS ──
 const TX={
@@ -342,17 +356,18 @@ ar:{
   optScored:'من سجّل؟',optAssisted:'من صنع؟',optCustom:'سؤال مخصص',
   optHome:'المضيف',optAway:'الضيف',
   create:'إنشاء البطاقة والبدء',
-  roundLbl:'الجولة',timerStart:'ابدأ',timerStop:'إيقاف',revall:'كشف الكل',cans:'الإجابة الصحيحة',
+  roundLbl:'الجولة',timerStart:'ابدأ',timerStop:'إيقاف',revall:'كشف الكل',
   ok:'صح',no:'خطأ',editCard:'← تعديل البطاقة',
   newCard:'بطاقة جديدة',replay:'نفس البطاقة',
-  lblLeague:'البطولة',lblSeason:'الموسم',lblResult:'النتيجة',lblTarget:'المطلوب',
-  statusReady:'جاهز للعب',statusTiming:'الوقت يعمل...',
+  lblLeague:'البطولة',lblSeason:'الموسم',lblResult:'النتيجة',lblTarget:'المطلوب', lblAnswer: 'الإجابة',
+  statusReady:'دور الفريق للعب...',statusTiming:'الوقت يعمل...',
   roTitle:'نهاية الجولة',roNobody:'لم يجب أحد بشكل صحيح',
   roCorrect:(n,p)=>`أجاب ${n} بشكل صحيح! (+${p} نقطة)`,
   noEvents:'—',lbl_G:'هدف',lbl_A:'تمريرة',
   tq_scored:(team,n)=>`من سجّل الهدف رقم ${n} لـ ${team}؟`,
   tq_assisted:(team,n)=>`من صنع الهدف رقم ${n} لـ ${team}؟`,
   errFill:'يرجى ملء أسماء الفرق والبطولة على الأقل',
+  secSaved:'الجولات المحفوظة', lblSave:'حفظ',
   phPlayer:'اسم اللاعب',phMin:'د',phHome:'مثال: الاتحاد',phAway:'مثال: الأهلي',
   phLeague:'مثال: دوري روشن السعودي',phSeason:'2024/2023',phP1:'مثال: الهلال',phP2:'مثال: النصر',
 },
@@ -368,17 +383,18 @@ en:{
   optScored:'Who scored?',optAssisted:'Who assisted?',optCustom:'Custom question',
   optHome:'Home',optAway:'Away',
   create:'Create Card & Start',
-  roundLbl:'Round',timerStart:'Start',timerStop:'Stop',revall:'Reveal All',cans:'Correct Answer',
+  roundLbl:'Round',timerStart:'Start',timerStop:'Stop',revall:'Reveal All',
   ok:'✓',no:'✗',editCard:'← Edit Card',
   newCard:'New Card',replay:'Same Card',
-  lblLeague:'League',lblSeason:'Season',lblResult:'Result',lblTarget:'Target',
-  statusReady:'Ready to play',statusTiming:'Timer running...',
+  lblLeague:'League',lblSeason:'Season',lblResult:'Result',lblTarget:'Target', lblAnswer: 'Answer',
+  statusReady:'Team turn...',statusTiming:'Timer running...',
   roTitle:'Round Over',roNobody:'Nobody answered correctly',
   roCorrect:(n,p)=>`${n} answered correctly! (+${p} pts)`,
   noEvents:'—',lbl_G:'G',lbl_A:'A',
   tq_scored:(team,n)=>`Who scored goal #${n} for ${team}?`,
   tq_assisted:(team,n)=>`Who assisted goal #${n} for ${team}?`,
   errFill:'Please fill in team names and league at minimum',
+  secSaved:'Saved Rounds', lblSave:'Save',
   phPlayer:'Player name',phMin:'min',phHome:'e.g. Al-Ittihad',phAway:'e.g. Al-Ahli',
   phLeague:'e.g. Saudi Pro League',phSeason:'2023/2024',phP1:'e.g. Al-Hilal',phP2:'e.g. Al-Nassr',
 }};
@@ -413,9 +429,11 @@ function applyTX(){
   s('opt-scored','optScored');s('opt-assisted','optAssisted');s('opt-custom','optCustom');
   s('opt-thome','optHome');s('opt-taway','optAway');
   s('lbl-create','create');s('lbl-round','roundLbl');
-  s('lbl-tbtn','timerStart');s('lbl-revall','revall');s('lbl-cans','cans');
+  s('lbl-tbtn','timerStart');s('lbl-revall','revall');
   s('lbl-ok1','ok');s('lbl-no1','no');s('lbl-ok2','ok');s('lbl-no2','no');
   s('lbl-edit','editCard');s('lbl-newcard','newCard');s('lbl-replay','replay');
+  s('sec-saved','secSaved');s('lbl-save','lblSave');
+  renderSavedRounds();
   p('inp-home','phHome');p('inp-away','phAway');p('inp-league','phLeague');
   p('inp-season','phSeason');p('inp-p1','phP1');p('inp-p2','phP2');
 }
@@ -489,19 +507,18 @@ function startGame(){
     const tn=ts==='home'?home:away;
     tq=ttype==='scored'?t('tq_scored',tn,n):t('tq_assisted',tn,n);
   }
-  const tans=$('inp-tans').value.trim()||'?';
+  const tans=$('inp-tans').value.trim()||'؟';
 
   G={p1,p2,home,away,score:`${hs} - ${as}`,season,league,homeEvents,awayEvents,
      targetQ:tq,targetAnswer:tans,squares:[],revealed:new Set(),
-     pts:[0,0],strikes:[0,0],eliminated:[false,false],roundActive:true};
+     pts:[0,0],strikes:[0,0],eliminated:[false,false],roundActive:true, currentTurn: 0};
 
   buildSquares();
   renderGameHeader();
   renderCard();
   resetTimer();
+  updateTurnUI();
   updateCtrlBtns();
-  $('answer-box').classList.remove('show');
-  $('answer-val').textContent=G.targetAnswer;
   $('status-bar').textContent=t('statusReady');
   $('status-bar').className='status-bar';
   $('overlay').classList.remove('show');
@@ -514,7 +531,7 @@ function buildSquares(){
   const mk=(type,value,meta={})=>sq.push({id:++n,type,value,meta});
   mk('league',G.league);mk('season',G.season||'—');
   mk('team-home',G.home);mk('team-away',G.away);mk('score',G.score);
-  mk('target',G.targetQ);
+  mk('target',G.targetQ); mk('answer',G.targetAnswer); // Added answer square
   G.homeEvents.forEach(e=>mk('event-home',e.player,{type:e.type,minute:e.minute}));
   G.awayEvents.forEach(e=>mk('event-away',e.player,{type:e.type,minute:e.minute}));
   G.squares=sq;G.revealed=new Set();
@@ -524,24 +541,19 @@ function buildSquares(){
 const isRev=id=>G.revealed.has(id);
 
 function rInfo(sq){
-  return isRev(sq.id)
-    ?`<span class="sq revealed sq-info">${sq.value}</span>`
-    :`<span class="sq hidden sq-info" onclick="revSq(${sq.id})">${sq.id}</span>`;
+  return isRev(sq.id)?`<span class="sq revealed sq-info">${sq.value}</span>`:`<span class="sq hidden sq-info" onclick="revSq(${sq.id})">${sq.id}</span>`;
 }
 function rTeam(sq,name){
-  return isRev(sq.id)
-    ?`<div class="sq revealed sq-team cteam"><div class="cteam-name">${name}</div></div>`
-    :`<div class="sq hidden sq-team" onclick="revSq(${sq.id})">${sq.id}</div>`;
+  return isRev(sq.id)?`<div class="sq revealed sq-team cteam"><div class="cteam-name">${name}</div></div>`:`<div class="sq hidden sq-team" onclick="revSq(${sq.id})">${sq.id}</div>`;
 }
 function rScore(sq){
-  return isRev(sq.id)
-    ?`<div class="sq revealed sq-score cscore-wrap"><div class="cscore-lbl">${t('lblResult')}</div><div class="cscore-val">${sq.value}</div></div>`
-    :`<div class="sq hidden sq-score" onclick="revSq(${sq.id})">${sq.id}</div>`;
+  return isRev(sq.id)?`<div class="sq revealed sq-score cscore-wrap"><div class="cscore-lbl">${t('lblResult')}</div><div class="cscore-val">${sq.value}</div></div>`:`<div class="sq hidden sq-score" onclick="revSq(${sq.id})">${sq.id}</div>`;
 }
 function rTarget(sq){
-  return isRev(sq.id)
-    ?`<div class="sq revealed sq-target">${sq.value}</div>`
-    :`<div class="sq hidden sq-target" onclick="revSq(${sq.id})">${sq.id}</div>`;
+  return isRev(sq.id)?`<div class="sq revealed sq-target">${sq.value}</div>`:`<div class="sq hidden sq-target" onclick="revSq(${sq.id})">${sq.id}</div>`;
+}
+function rAnswer(sq){
+  return isRev(sq.id)?`<div class="sq revealed sq-target" style="justify-content:center; color:#c8f135; text-align:center;">${sq.value}</div>`:`<div class="sq hidden sq-target" onclick="revSq(${sq.id})" style="justify-content:center;">${sq.id}</div>`;
 }
 function rEvent(sq){
   return isRev(sq.id)
@@ -554,7 +566,14 @@ function rEvent(sq){
 }
 
 function renderCard(){
-  const [leag,seas,hteam,ateam,score,targ]=G.squares;
+  const leag = G.squares.find(s=>s.type==='league');
+  const seas = G.squares.find(s=>s.type==='season');
+  const hteam = G.squares.find(s=>s.type==='team-home');
+  const ateam = G.squares.find(s=>s.type==='team-away');
+  const score = G.squares.find(s=>s.type==='score');
+  const targ = G.squares.find(s=>s.type==='target');
+  const ansSq = G.squares.find(s=>s.type==='answer');
+
   const hEv=G.squares.filter(s=>s.type==='event-home');
   const aEv=G.squares.filter(s=>s.type==='event-away');
   const hEvHtml=hEv.length?hEv.map(rEvent).join(''):`<div class="no-events">${t('noEvents')}</div>`;
@@ -567,6 +586,7 @@ function renderCard(){
     </div>
     <div class="card-teams">${rTeam(hteam,G.home)}${rScore(score)}${rTeam(ateam,G.away)}</div>
     <div class="card-target"><div class="ctarget-lbl">${t('lblTarget')}</div>${rTarget(targ)}</div>
+    <div class="card-target" style="border-top:1px dashed var(--border2); background:rgba(200,241,53,0.01)"><div class="ctarget-lbl">${t('lblAnswer')}</div>${rAnswer(ansSq)}</div>
     <div class="card-events">
       <div class="cevents-col"><div class="cevents-head">${G.home}</div>${hEvHtml}</div>
       <div class="cevents-col"><div class="cevents-head">${G.away}</div>${aEvHtml}</div>
@@ -576,10 +596,33 @@ function renderCard(){
 function revSq(id){
   if(!G.roundActive||G.revealed.has(id))return;
   G.revealed.add(id);renderCard();
+  // Timer restarts after a reveal based on rules
+  resetTimer(); startTmr();
 }
 function revealAll(){
   G.squares.forEach(s=>G.revealed.add(s.id));renderCard();stopTimer();
-  if(G.roundActive){G.roundActive=false;setTimeout(()=>showOverlay(false),400);}
+  if(G.roundActive){G.roundActive=false; updateTurnUI(); setTimeout(()=>showOverlay(false),400);}
+}
+
+// ── TEAM TURNS ──
+function updateTurnUI(){
+  if(!G.roundActive) {
+    $('tsb-p1').classList.remove('active-turn');
+    $('tsb-p2').classList.remove('active-turn');
+    return;
+  }
+  $('tsb-p1').classList.toggle('active-turn', G.currentTurn === 0);
+  $('tsb-p2').classList.toggle('active-turn', G.currentTurn === 1);
+}
+
+function switchTurn() {
+  if (!G.roundActive) return;
+  if (G.eliminated[0] && G.eliminated[1]) return;
+  G.currentTurn = G.currentTurn === 0 ? 1 : 0;
+  if (G.eliminated[G.currentTurn]) G.currentTurn = G.currentTurn === 0 ? 1 : 0; // Skip if eliminated
+  updateTurnUI();
+  resetTimer();
+  startTmr();
 }
 
 // ── GAME HEADER ──
@@ -635,13 +678,18 @@ function markAnswer(ti,correct){
   if(correct){
     const hidden=G.squares.length-G.revealed.size;
     G.pts[ti]+=hidden;G.roundActive=false;
-    updateScore();revealAll();
+    updateScore();updateTurnUI();revealAll();
     setTimeout(()=>showOverlay(true,ti,hidden),500);
   } else {
     G.strikes[ti]++;
     if(G.strikes[ti]>=2)G.eliminated[ti]=true;
     updateScore();updateCtrlBtns();
-    if(G.eliminated[0]&&G.eliminated[1]){G.roundActive=false;revealAll();setTimeout(()=>showOverlay(false),500);}
+    if(G.eliminated[0]&&G.eliminated[1]){
+       G.roundActive=false;updateTurnUI();revealAll();
+       setTimeout(()=>showOverlay(false),500);
+    } else {
+       switchTurn();
+    }
   }
 }
 
@@ -654,11 +702,10 @@ function showOverlay(win,ti,pts){
   $('overlay').classList.add('show');
 }
 function closeOverlay(){$('overlay').classList.remove('show');}
-function toggleAnswer(){$('answer-box').classList.toggle('show');}
+
 function replayCard(){
-  G.strikes=[0,0];G.eliminated=[false,false];G.roundActive=true;G.revealed=new Set();
-  renderCard();resetTimer();updateCtrlBtns();
-  $('answer-box').classList.remove('show');
+  G.strikes=[0,0];G.eliminated=[false,false];G.roundActive=true;G.revealed=new Set();G.currentTurn=0;
+  renderCard();resetTimer();updateTurnUI();updateCtrlBtns();
   $('status-bar').textContent=t('statusReady');$('status-bar').className='status-bar';
 }
 
@@ -666,8 +713,140 @@ function replayCard(){
 function goTo(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));$('view-'+v).classList.add('active');}
 function goSetup(){stopTimer();goTo('setup');}
 
+// ── SAVED ROUNDS ──
+const STORAGE_KEY = 'archive_rounds';
+
+function getRounds() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function setRounds(rounds) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(rounds)); } catch(e) {}
+}
+
+function saveRound() {
+  const p1=$('inp-p1').value.trim(), p2=$('inp-p2').value.trim();
+  const home=$('inp-home').value.trim(), away=$('inp-away').value.trim();
+  const league=$('inp-league').value.trim();
+  if(!home||!away||!league){ alert(t('errFill')); return; }
+
+  const round = {
+    id: Date.now(),
+    savedAt: new Date().toLocaleDateString(lang==='ar'?'ar-SA':'en-GB'),
+    p1, p2,
+    home, away,
+    league,
+    season: $('inp-season').value.trim(),
+    hscore: $('inp-hscore').value,
+    ascore: $('inp-ascore').value,
+    homeEvents: getEvents('home'),
+    awayEvents: getEvents('away'),
+    ttype: $('inp-ttype').value,
+    tnum: $('inp-tnum').value,
+    tteam: $('inp-tteam').value,
+    tcustom: $('inp-tcustom').value.trim(),
+    tans: $('inp-tans').value.trim(),
+  };
+
+  const rounds = getRounds();
+  rounds.unshift(round); // newest first
+  setRounds(rounds);
+  renderSavedRounds();
+  showToast(lang==='ar'?'✓ تم الحفظ':'✓ Saved');
+}
+
+function loadRound(id) {
+  const rounds = getRounds();
+  const r = rounds.find(x => x.id === id);
+  if (!r) return;
+
+  // Fill form fields
+  $('inp-p1').value = r.p1 || '';
+  $('inp-p2').value = r.p2 || '';
+  $('inp-home').value = r.home || '';
+  $('inp-away').value = r.away || '';
+  $('inp-league').value = r.league || '';
+  $('inp-season').value = r.season || '';
+  $('inp-hscore').value = r.hscore ?? 0;
+  $('inp-ascore').value = r.ascore ?? 0;
+  $('inp-ttype').value = r.ttype || 'scored';
+  $('inp-tnum').value = r.tnum || 1;
+  $('inp-tteam').value = r.tteam || 'home';
+  $('inp-tcustom').value = r.tcustom || '';
+  $('inp-tans').value = r.tans || '';
+
+  // Rebuild events
+  $('list-home').innerHTML = ''; $('list-away').innerHTML = '';
+  evCtr = { home: 0, away: 0 };
+  (r.homeEvents||[]).forEach(e => {
+    addEvent('home');
+    const id2 = evCtr.home;
+    $(`ep-home-${id2}`).value = e.player;
+    $(`em-home-${id2}`).value = e.minute || '';
+    if (e.type === 'A') toggleType('home', id2);
+  });
+  (r.awayEvents||[]).forEach(e => {
+    addEvent('away');
+    const id2 = evCtr.away;
+    $(`ep-away-${id2}`).value = e.player;
+    $(`em-away-${id2}`).value = e.minute || '';
+    if (e.type === 'A') toggleType('away', id2);
+  });
+
+  updateTargetPreview();
+  // Scroll to top of setup
+  $('view-setup').scrollTo({ top: 0, behavior: 'smooth' });
+  showToast(lang==='ar'?'✓ تم التحميل':'✓ Loaded');
+}
+
+function deleteRound(id) {
+  const rounds = getRounds().filter(x => x.id !== id);
+  setRounds(rounds);
+  renderSavedRounds();
+}
+
+function renderSavedRounds() {
+  const rounds = getRounds();
+  const sec = $('saved-section');
+  const list = $('saved-list');
+  const count = $('saved-count');
+
+  if (rounds.length === 0) {
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = '';
+  count.textContent = `(${rounds.length})`;
+
+  list.innerHTML = '';
+  rounds.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'saved-card';
+    div.innerHTML = `
+      <div class="saved-card-info">
+        <div class="saved-card-title">${r.home} vs ${r.away}</div>
+        <div class="saved-card-meta">${r.league}${r.season?' · '+r.season:''} · ${r.hscore}-${r.ascore} · ${r.savedAt}</div>
+      </div>
+      <div class="saved-card-btns">
+        <button class="btn-load" onclick="loadRound(${r.id})">${lang==='ar'?'تحميل':'Load'}</button>
+        <button class="btn-danger" onclick="deleteRound(${r.id})">✕</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function showToast(msg) {
+  const el = $('save-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
 // ── INIT ──
-applyTX();updateTargetPreview();
+applyTX();updateTargetPreview();renderSavedRounds();
 </script>
 </body>
 </html>
