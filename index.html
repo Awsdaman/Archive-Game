@@ -51,7 +51,8 @@ label{font-size:12px;color:var(--text-dim);display:block;margin-bottom:5px}
 .setup-hero p{color:var(--text-dim);font-size:13px;margin-top:8px}
 .sec-card{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px}
 .sec-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
-.event-item{display:grid;grid-template-columns:38px 1fr 56px auto;gap:7px;align-items:center}
+.event-item{display:grid;grid-template-columns:32px 38px 1fr 56px auto;gap:7px;align-items:center}
+.ev-id-badge{font-family:'Oswald',sans-serif;font-size:11px;font-weight:700;color:var(--text-dim);background:var(--surface3);border:1px solid var(--border2);border-radius:5px;padding:4px 0;text-align:center;min-width:30px}
 .ev-badge{font-family:'Oswald',sans-serif;font-weight:700;font-size:11px;padding:8px 0;border-radius:6px;text-align:center;cursor:pointer;user-select:none;transition:.15s}
 .ev-badge.G{background:var(--green-dim);color:var(--accent);border:1px solid rgba(200,241,53,0.3)}
 .ev-badge.A{background:rgba(100,150,255,0.12);color:#88aaff;border:1px solid rgba(100,150,255,0.25)}
@@ -110,6 +111,15 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
 .sq.hidden{background:var(--surface3);border:1px solid var(--border2)}
 .sq.hidden:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);box-shadow:0 0 10px var(--accent-glow)}
 .sq.hidden:active{transform:scale(.96)}
+.sq.locked{background:rgba(200,241,53,0.04);border:1px solid var(--accent);color:var(--accent);cursor:default;font-size:20px;box-shadow:0 0 8px rgba(200,241,53,0.12)}
+/* per-type colors */
+.sq-c-league  {background:rgba(120,80,255,0.12)!important;border-color:rgba(120,80,255,0.35)!important;color:#a07fff!important}
+.sq-c-season  {background:rgba(255,160,40,0.1)!important;border-color:rgba(255,160,40,0.35)!important;color:#ffb347!important}
+.sq-c-team    {background:rgba(40,160,255,0.1)!important;border-color:rgba(40,160,255,0.3)!important;color:#66aaff!important}
+.sq-c-score   {background:rgba(200,241,53,0.08)!important;border-color:rgba(200,241,53,0.35)!important;color:var(--accent)!important}
+.sq-c-goal    {background:rgba(200,241,53,0.08)!important;border-color:rgba(200,241,53,0.25)!important;color:var(--accent)!important}
+.sq-c-assist  {background:rgba(40,180,255,0.08)!important;border-color:rgba(40,180,255,0.28)!important;color:#66ccff!important}
+.sq-c-answer  {background:rgba(255,80,120,0.08)!important;border-color:rgba(255,80,120,0.3)!important;color:#ff7096!important}
 .sq.revealed{cursor:default;animation:flip .3s ease}
 @keyframes flip{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
 .sq-info{flex:1;min-height:34px;padding:5px 10px}
@@ -160,8 +170,6 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
 
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
-
-/* Saved rounds */
 .saved-card{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:.2s}
 .saved-card:hover{border-color:var(--border)}
 .saved-card-info{flex:1;min-width:0}
@@ -170,7 +178,6 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
 .saved-card-btns{display:flex;gap:6px;flex-shrink:0}
 .btn-load{background:var(--accent-dim);color:var(--accent);border:1px solid var(--border);border-radius:6px;padding:6px 12px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;transition:.15s}
 .btn-load:hover{background:rgba(200,241,53,.18)}
-.saved-empty{text-align:center;padding:14px;color:var(--text-dim);font-size:12px}
 .save-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0a0a0e;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;padding:10px 22px;border-radius:20px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
 .save-toast.show{opacity:1}
 </style>
@@ -224,36 +231,11 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
 
     <div class="sec-card">
       <div class="sec-title" id="sec-target">المطلوب</div>
-      <div class="row2">
-        <div class="field">
-          <label id="lbl-ttype">نوع السؤال</label>
-          <select id="inp-ttype" onchange="updateTargetPreview()">
-            <option value="scored" id="opt-scored">من سجّل؟</option>
-            <option value="assisted" id="opt-assisted">من صنع؟</option>
-            <option value="custom" id="opt-custom">سؤال مخصص</option>
-          </select>
-        </div>
-        <div class="field" id="fld-goalnum">
-          <label id="lbl-tnum">رقم الهدف</label>
-          <input id="inp-tnum" type="number" min="1" max="20" value="1" oninput="updateTargetPreview()">
-        </div>
-      </div>
-      <div class="field" id="fld-tteam">
-        <label id="lbl-tteam">لأي فريق؟</label>
-        <select id="inp-tteam" onchange="updateTargetPreview()">
-          <option value="home" id="opt-thome">المضيف</option>
-          <option value="away" id="opt-taway">الضيف</option>
-        </select>
-      </div>
-      <div class="field" id="fld-tcustom" style="display:none">
-        <label id="lbl-tcustom">نص السؤال</label>
-        <input id="inp-tcustom" type="text" placeholder="اكتب السؤال..." oninput="updateTargetPreview()">
-      </div>
       <div class="field">
-        <label id="lbl-tans">الإجابة الصحيحة (للمضيف فقط)</label>
-        <input id="inp-tans" type="text" placeholder="اسم اللاعب">
+        <label id="lbl-tid">رقم الحدث المستهدف (#ID)</label>
+        <input id="inp-tid" type="number" min="1" placeholder="مثال: 3" oninput="updateTargetPreview()">
       </div>
-      <div class="target-preview" id="target-preview"></div>
+      <div class="target-preview" id="target-preview">أضف أحداثاً من الأعلى ثم اكتب رقم الحدث المستهدف</div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr auto;gap:10px">
@@ -261,7 +243,6 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
       <button class="btn-secondary" style="white-space:nowrap;padding:14px 18px" onclick="saveRound()">💾 <span id="lbl-save">حفظ</span></button>
     </div>
 
-    <!-- Saved Rounds Library -->
     <div class="sec-card" id="saved-section" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div class="sec-title" id="sec-saved">الجولات المحفوظة</div>
@@ -339,7 +320,7 @@ body.ltr .cevents-col:nth-child(1){border-left:none;border-right:1px solid var(-
   </div>
 </div>
 
-<div class="save-toast" id="save-toast">✓ تم الحفظ</div>
+<div class="save-toast" id="save-toast">✓</div>
 
 <script>
 // ── TRANSLATIONS ──
@@ -355,6 +336,7 @@ ar:{
   ttype:'نوع السؤال',tnum:'رقم الهدف',tteam:'لأي فريق؟',tcustom:'نص السؤال',tans:'الإجابة الصحيحة (للمضيف فقط)',
   optScored:'من سجّل؟',optAssisted:'من صنع؟',optCustom:'سؤال مخصص',
   optHome:'المضيف',optAway:'الضيف',
+  lblTid:'رقم الحدث المستهدف (#ID)',secSaved:'الجولات المحفوظة',lblSave:'حفظ',
   create:'إنشاء البطاقة والبدء',
   roundLbl:'الجولة',timerStart:'ابدأ',timerStop:'إيقاف',revall:'كشف الكل',
   ok:'صح',no:'خطأ',editCard:'← تعديل البطاقة',
@@ -367,7 +349,6 @@ ar:{
   tq_scored:(team,n)=>`من سجّل الهدف رقم ${n} لـ ${team}؟`,
   tq_assisted:(team,n)=>`من صنع الهدف رقم ${n} لـ ${team}؟`,
   errFill:'يرجى ملء أسماء الفرق والبطولة على الأقل',
-  secSaved:'الجولات المحفوظة', lblSave:'حفظ',
   phPlayer:'اسم اللاعب',phMin:'د',phHome:'مثال: الاتحاد',phAway:'مثال: الأهلي',
   phLeague:'مثال: دوري روشن السعودي',phSeason:'2024/2023',phP1:'مثال: الهلال',phP2:'مثال: النصر',
 },
@@ -382,6 +363,7 @@ en:{
   ttype:'Question Type',tnum:'Goal Number',tteam:'Which Team?',tcustom:'Question Text',tans:'Correct Answer (host only)',
   optScored:'Who scored?',optAssisted:'Who assisted?',optCustom:'Custom question',
   optHome:'Home',optAway:'Away',
+  lblTid:'Target Event ID (#ID)',secSaved:'Saved Rounds',lblSave:'Save',
   create:'Create Card & Start',
   roundLbl:'Round',timerStart:'Start',timerStop:'Stop',revall:'Reveal All',
   ok:'✓',no:'✗',editCard:'← Edit Card',
@@ -394,13 +376,11 @@ en:{
   tq_scored:(team,n)=>`Who scored goal #${n} for ${team}?`,
   tq_assisted:(team,n)=>`Who assisted goal #${n} for ${team}?`,
   errFill:'Please fill in team names and league at minimum',
-  secSaved:'Saved Rounds', lblSave:'Save',
   phPlayer:'Player name',phMin:'min',phHome:'e.g. Al-Ittihad',phAway:'e.g. Al-Ahli',
   phLeague:'e.g. Saudi Pro League',phSeason:'2023/2024',phP1:'e.g. Al-Hilal',phP2:'e.g. Al-Nassr',
 }};
 
 let lang='ar';
-let evCtr={home:0,away:0};
 let G={};
 let timerIv=null,timerSec=30,timerOn=false;
 
@@ -432,86 +412,92 @@ function applyTX(){
   s('lbl-tbtn','timerStart');s('lbl-revall','revall');
   s('lbl-ok1','ok');s('lbl-no1','no');s('lbl-ok2','ok');s('lbl-no2','no');
   s('lbl-edit','editCard');s('lbl-newcard','newCard');s('lbl-replay','replay');
+  s('sec-target','secTarget');s('lbl-tid','lblTid');
   s('sec-saved','secSaved');s('lbl-save','lblSave');
-  renderSavedRounds();
   p('inp-home','phHome');p('inp-away','phAway');p('inp-league','phLeague');
   p('inp-season','phSeason');p('inp-p1','phP1');p('inp-p2','phP2');
+  renderSavedRounds();
+  updateTargetPreview();
 }
 
 // ── EVENTS BUILDER ──
+let evNextId = 1;
+
 function addEvent(side){
-  const id=++evCtr[side];
-  const div=document.createElement('div');
-  div.className='event-item';div.id=`ev-${side}-${id}`;
+  const gid = evNextId++;
+  const div = document.createElement('div');
+  div.className='event-item'; div.id=`ev-${side}-${gid}`; div.dataset.gid=gid; div.dataset.side=side;
   div.innerHTML=`
-    <div class="ev-badge G" id="eb-${side}-${id}" onclick="toggleType('${side}',${id})">G</div>
-    <input type="text" placeholder="${t('phPlayer')}" id="ep-${side}-${id}" style="padding:8px 10px;font-size:13px">
-    <input type="text" placeholder="${t('phMin')}" id="em-${side}-${id}" style="padding:8px 6px;font-size:13px;text-align:center">
-    <button class="btn-danger" onclick="rmEvent('${side}',${id})">✕</button>`;
+    <div class="ev-id-badge">#${gid}</div>
+    <div class="ev-badge G" id="eb-${gid}" onclick="toggleType(${gid})">G</div>
+    <input type="text" placeholder="${t('phPlayer')}" id="ep-${gid}" style="padding:8px 10px;font-size:13px">
+    <input type="text" placeholder="${t('phMin')}"    id="em-${gid}" style="padding:8px 6px;font-size:13px;text-align:center">
+    <button class="btn-danger" onclick="rmEvent('${side}',${gid})">✕</button>`;
+  $(`list-${side}`).appendChild(div);
+  updateTargetPreview();
+}
+function addEventWithId(side, gid, type, player, minute){
+  if(gid >= evNextId) evNextId = gid + 1;
+  const div = document.createElement('div');
+  div.className='event-item'; div.id=`ev-${side}-${gid}`; div.dataset.gid=gid; div.dataset.side=side;
+  div.innerHTML=`
+    <div class="ev-id-badge">#${gid}</div>
+    <div class="ev-badge ${type}" id="eb-${gid}" onclick="toggleType(${gid})">${type}</div>
+    <input type="text" placeholder="${t('phPlayer')}" id="ep-${gid}" value="${player}" style="padding:8px 10px;font-size:13px">
+    <input type="text" placeholder="${t('phMin')}"    id="em-${gid}" value="${minute}" style="padding:8px 6px;font-size:13px;text-align:center">
+    <button class="btn-danger" onclick="rmEvent('${side}',${gid})">✕</button>`;
   $(`list-${side}`).appendChild(div);
 }
-function toggleType(side,id){
-  const b=$(`eb-${side}-${id}`);
+function toggleType(gid){
+  const b=$(`eb-${gid}`);
   const isG=b.classList.contains('G');
-  b.classList.toggle('G',!isG);b.classList.toggle('A',isG);
+  b.classList.toggle('G',!isG); b.classList.toggle('A',isG);
   b.textContent=isG?'A':'G';
 }
-function rmEvent(side,id){ const e=$(`ev-${side}-${id}`);if(e)e.remove(); }
+function rmEvent(side,gid){ const e=$(`ev-${side}-${gid}`); if(e)e.remove(); updateTargetPreview(); }
 function getEvents(side){
   return [...$(`list-${side}`).querySelectorAll('.event-item')]
     .map(el=>{
-      const parts=el.id.split('-');const s=parts[1],i=parts[2];
-      const b=$(`eb-${s}-${i}`);
-      const player=$(`ep-${s}-${i}`).value.trim();
-      const min=$(`em-${s}-${i}`).value.trim();
-      if(!player)return null;
-      return{type:b.classList.contains('G')?'G':'A',player,minute:min};
+      const gid=parseInt(el.dataset.gid);
+      const player=$(`ep-${gid}`).value.trim();
+      const min=$(`em-${gid}`).value.trim();
+      if(!player) return null;
+      return{gid, type:$(`eb-${gid}`).classList.contains('G')?'G':'A', player, minute:min, side};
     }).filter(Boolean);
 }
+function getAllEvents(){ return [...getEvents('home'),...getEvents('away')]; }
 
 // ── TARGET PREVIEW ──
 function updateTargetPreview(){
-  const ttype=$('inp-ttype').value;
-  const isCustom=ttype==='custom';
-  $('fld-tteam').style.display=isCustom?'none':'';
-  $('fld-goalnum').style.display=isCustom?'none':'';
-  $('fld-tcustom').style.display=isCustom?'':'none';
-  let prev='';
-  if(isCustom){prev=$('inp-tcustom').value||'...';}
-  else{
-    const n=$('inp-tnum').value||1;
-    const ts=$('inp-tteam').value;
-    const tn=ts==='home'?($('inp-home').value||t('optHome')):($('inp-away').value||t('optAway'));
-    prev=ttype==='scored'?t('tq_scored',tn,n):t('tq_assisted',tn,n);
-  }
-  $('target-preview').textContent=prev;
+  const tid=parseInt($('inp-tid')?.value);
+  const el=$('target-preview'); if(!el) return;
+  if(!tid){ el.textContent=lang==='ar'?'أضف أحداثاً من الأعلى ثم اكتب رقم الحدث المستهدف':'Add events above then enter the target event ID'; return; }
+  const ev=getAllEvents().find(e=>e.gid===tid);
+  if(!ev){ el.textContent=lang==='ar'?`❌ لا يوجد حدث برقم #${tid}`:`❌ No event with ID #${tid}`; return; }
+  const teamName=ev.side==='home'?($('inp-home').value||t('optHome')):($('inp-away').value||t('optAway'));
+  const typeStr=ev.type==='G'?(lang==='ar'?'هدف':'Goal'):(lang==='ar'?'تمريرة':'Assist');
+  el.textContent=`✓  #${tid} — ${typeStr}: ${ev.player}  (${teamName})`;
 }
 
 // ── START GAME ──
 function startGame(){
-  const p1=$('inp-p1').value.trim(),p2=$('inp-p2').value.trim();
-  const home=$('inp-home').value.trim(),away=$('inp-away').value.trim();
+  const p1=$('inp-p1').value.trim(), p2=$('inp-p2').value.trim();
+  const home=$('inp-home').value.trim(), away=$('inp-away').value.trim();
   const league=$('inp-league').value.trim();
   if(!p1||!p2||!home||!away||!league){alert(t('errFill'));return;}
 
-  const hs=parseInt($('inp-hscore').value)||0,as=parseInt($('inp-ascore').value)||0;
+  const tid=parseInt($('inp-tid').value);
+  const targetEv=getAllEvents().find(e=>e.gid===tid);
+  if(!targetEv){alert(lang==='ar'?'اكتب رقم حدث صحيح في قسم المطلوب':'Enter a valid event ID in the target section');return;}
+
+  const hs=parseInt($('inp-hscore').value)||0, as=parseInt($('inp-ascore').value)||0;
   const season=$('inp-season').value.trim();
-  const homeEvents=getEvents('home'),awayEvents=getEvents('away');
+  const homeEvents=getEvents('home'), awayEvents=getEvents('away');
 
-  const ttype=$('inp-ttype').value;
-  let tq='';
-  if(ttype==='custom'){tq=$('inp-tcustom').value.trim()||'?';}
-  else{
-    const n=$('inp-tnum').value||1;
-    const ts=$('inp-tteam').value;
-    const tn=ts==='home'?home:away;
-    tq=ttype==='scored'?t('tq_scored',tn,n):t('tq_assisted',tn,n);
-  }
-  const tans=$('inp-tans').value.trim()||'؟';
-
-  G={p1,p2,home,away,score:`${hs} - ${as}`,season,league,homeEvents,awayEvents,
-     targetQ:tq,targetAnswer:tans,squares:[],revealed:new Set(),
-     pts:[0,0],strikes:[0,0],eliminated:[false,false],roundActive:true, currentTurn: 0};
+  G={p1,p2,home,away,score:`${hs} - ${as}`,season,league,
+     homeEvents,awayEvents,targetGid:tid,targetAnswer:targetEv.player,
+     squares:[],revealed:new Set(),
+     pts:[0,0],strikes:[0,0],eliminated:[false,false],roundActive:true,currentTurn:0};
 
   buildSquares();
   renderGameHeader();
@@ -527,53 +513,65 @@ function startGame(){
 
 // ── SQUARES ──
 function buildSquares(){
-  const sq=[];let n=0;
+  const sq=[]; let n=0;
   const mk=(type,value,meta={})=>sq.push({id:++n,type,value,meta});
-  mk('league',G.league);mk('season',G.season||'—');
-  mk('team-home',G.home);mk('team-away',G.away);mk('score',G.score);
-  mk('target',G.targetQ); mk('answer',G.targetAnswer); // Added answer square
-  G.homeEvents.forEach(e=>mk('event-home',e.player,{type:e.type,minute:e.minute}));
-  G.awayEvents.forEach(e=>mk('event-away',e.player,{type:e.type,minute:e.minute}));
-  G.squares=sq;G.revealed=new Set();
+  mk('league',G.league);
+  mk('season',G.season||'—');
+  mk('team-home',G.home);
+  mk('team-away',G.away);
+  mk('score',G.score);
+  mk('answer',G.targetAnswer); // المطلوب — openable by host, shows answer
+  G.homeEvents.forEach(e=>mk('event-home',e.player,{type:e.type,minute:e.minute,gid:e.gid,locked:e.gid===G.targetGid}));
+  G.awayEvents.forEach(e=>mk('event-away',e.player,{type:e.type,minute:e.minute,gid:e.gid,locked:e.gid===G.targetGid}));
+  G.squares=sq; G.revealed=new Set();
 }
 
 // ── RENDER CARD ──
 const isRev=id=>G.revealed.has(id);
 
 function rInfo(sq){
-  return isRev(sq.id)?`<span class="sq revealed sq-info">${sq.value}</span>`:`<span class="sq hidden sq-info" onclick="revSq(${sq.id})">${sq.id}</span>`;
+  const cls=sq.type==='league'?'sq-c-league':'sq-c-season';
+  return isRev(sq.id)
+    ?`<span class="sq revealed sq-info">${sq.value}</span>`
+    :`<span class="sq hidden sq-info ${cls}" onclick="revSq(${sq.id})">${sq.id}</span>`;
 }
-function rTeam(sq,name){
-  return isRev(sq.id)?`<div class="sq revealed sq-team cteam"><div class="cteam-name">${name}</div></div>`:`<div class="sq hidden sq-team" onclick="revSq(${sq.id})">${sq.id}</div>`;
+function rTeam(sq){
+  return isRev(sq.id)
+    ?`<div class="sq revealed sq-team cteam"><div class="cteam-name">${sq.value}</div></div>`
+    :`<div class="sq hidden sq-team sq-c-team" onclick="revSq(${sq.id})">${sq.id}</div>`;
 }
 function rScore(sq){
-  return isRev(sq.id)?`<div class="sq revealed sq-score cscore-wrap"><div class="cscore-lbl">${t('lblResult')}</div><div class="cscore-val">${sq.value}</div></div>`:`<div class="sq hidden sq-score" onclick="revSq(${sq.id})">${sq.id}</div>`;
-}
-function rTarget(sq){
-  return isRev(sq.id)?`<div class="sq revealed sq-target">${sq.value}</div>`:`<div class="sq hidden sq-target" onclick="revSq(${sq.id})">${sq.id}</div>`;
+  return isRev(sq.id)
+    ?`<div class="sq revealed sq-score cscore-wrap"><div class="cscore-lbl">${t('lblResult')}</div><div class="cscore-val">${sq.value}</div></div>`
+    :`<div class="sq hidden sq-score sq-c-score" onclick="revSq(${sq.id})">${sq.id}</div>`;
 }
 function rAnswer(sq){
-  return isRev(sq.id)?`<div class="sq revealed sq-target" style="justify-content:center; color:#c8f135; text-align:center;">${sq.value}</div>`:`<div class="sq hidden sq-target" onclick="revSq(${sq.id})" style="justify-content:center;">${sq.id}</div>`;
+  return isRev(sq.id)
+    ?`<div class="sq revealed sq-target" style="justify-content:center;color:var(--accent);font-weight:700;font-size:15px;text-align:center">${sq.value}</div>`
+    :`<div class="sq hidden sq-target sq-c-answer" onclick="revSq(${sq.id})" style="justify-content:center;font-size:20px">?</div>`;
 }
 function rEvent(sq){
-  return isRev(sq.id)
-    ?`<div class="sq revealed sq-event">
-        <span class="ev-type ${sq.meta.type}">${t('lbl_'+sq.meta.type)}</span>
-        <span class="ev-player">${sq.value}</span>
-        <span class="ev-min">${sq.meta.minute?sq.meta.minute+"'":''}</span>
-      </div>`
-    :`<div class="sq hidden sq-event" onclick="revSq(${sq.id})">${sq.id}</div>`;
+  if(isRev(sq.id)){
+    return `<div class="sq revealed sq-event">
+      <span class="ev-type ${sq.meta.type}">${t('lbl_'+sq.meta.type)}</span>
+      <span class="ev-player">${sq.value}</span>
+      <span class="ev-min">${sq.meta.minute?sq.meta.minute+"'":''}</span>
+    </div>`;
+  }
+  if(sq.meta.locked){
+    return `<div class="sq locked sq-event" title="${lang==='ar'?'هذا هو المطلوب':'This is the target'}">?</div>`;
+  }
+  const cls=sq.meta.type==='G'?'sq-c-goal':'sq-c-assist';
+  return `<div class="sq hidden sq-event ${cls}" onclick="revSq(${sq.id})">${sq.id}</div>`;
 }
 
 function renderCard(){
-  const leag = G.squares.find(s=>s.type==='league');
-  const seas = G.squares.find(s=>s.type==='season');
-  const hteam = G.squares.find(s=>s.type==='team-home');
-  const ateam = G.squares.find(s=>s.type==='team-away');
-  const score = G.squares.find(s=>s.type==='score');
-  const targ = G.squares.find(s=>s.type==='target');
-  const ansSq = G.squares.find(s=>s.type==='answer');
-
+  const leag=G.squares.find(s=>s.type==='league');
+  const seas=G.squares.find(s=>s.type==='season');
+  const hteam=G.squares.find(s=>s.type==='team-home');
+  const ateam=G.squares.find(s=>s.type==='team-away');
+  const score=G.squares.find(s=>s.type==='score');
+  const ansSq=G.squares.find(s=>s.type==='answer');
   const hEv=G.squares.filter(s=>s.type==='event-home');
   const aEv=G.squares.filter(s=>s.type==='event-away');
   const hEvHtml=hEv.length?hEv.map(rEvent).join(''):`<div class="no-events">${t('noEvents')}</div>`;
@@ -584,20 +582,20 @@ function renderCard(){
       <div class="cmeta-cell"><span class="cmeta-label">${t('lblLeague')}</span>${rInfo(leag)}</div>
       <div class="cmeta-cell"><span class="cmeta-label">${t('lblSeason')}</span>${rInfo(seas)}</div>
     </div>
-    <div class="card-teams">${rTeam(hteam,G.home)}${rScore(score)}${rTeam(ateam,G.away)}</div>
-    <div class="card-target"><div class="ctarget-lbl">${t('lblTarget')}</div>${rTarget(targ)}</div>
-    <div class="card-target" style="border-top:1px dashed var(--border2); background:rgba(200,241,53,0.01)"><div class="ctarget-lbl">${t('lblAnswer')}</div>${rAnswer(ansSq)}</div>
+    <div class="card-teams">${rTeam(hteam)}${rScore(score)}${rTeam(ateam)}</div>
+    <div class="card-target"><div class="ctarget-lbl">${t('lblTarget')}</div>${rAnswer(ansSq)}</div>
     <div class="card-events">
-      <div class="cevents-col"><div class="cevents-head">${G.home}</div>${hEvHtml}</div>
-      <div class="cevents-col"><div class="cevents-head">${G.away}</div>${aEvHtml}</div>
+      <div class="cevents-col">${hEvHtml}</div>
+      <div class="cevents-col">${aEvHtml}</div>
     </div>`;
 }
 
 function revSq(id){
   if(!G.roundActive||G.revealed.has(id))return;
+  const sq=G.squares.find(s=>s.id===id);
+  if(sq&&sq.meta&&sq.meta.locked)return; // target event is locked — cannot be opened
   G.revealed.add(id);renderCard();
-  // Timer restarts after a reveal based on rules
-  resetTimer(); startTmr();
+  switchTurn(); // switches active team and restarts timer
 }
 function revealAll(){
   G.squares.forEach(s=>G.revealed.add(s.id));renderCard();stopTimer();
@@ -662,7 +660,7 @@ function startTmr(){
   timerIv=setInterval(()=>{
     timerSec--;$('timer').textContent=timerSec;
     if(timerSec<=10)$('timer').classList.add('warn');
-    if(timerSec<=0){stopTimer();$('timer').textContent='0';}
+    if(timerSec<=0){stopTimer();$('timer').textContent='0'; setTimeout(switchTurn,400);}
   },1000);
 }
 function stopTimer(){
@@ -704,7 +702,8 @@ function showOverlay(win,ti,pts){
 function closeOverlay(){$('overlay').classList.remove('show');}
 
 function replayCard(){
-  G.strikes=[0,0];G.eliminated=[false,false];G.roundActive=true;G.revealed=new Set();G.currentTurn=0;
+  G.strikes=[0,0];G.eliminated=[false,false];G.roundActive=true;G.currentTurn=0;
+  buildSquares(); // rebuild so locked squares reset properly
   renderCard();resetTimer();updateTurnUI();updateCtrlBtns();
   $('status-bar').textContent=t('statusReady');$('status-bar').className='status-bar';
 }
@@ -714,118 +713,60 @@ function goTo(v){document.querySelectorAll('.view').forEach(x=>x.classList.remov
 function goSetup(){stopTimer();goTo('setup');}
 
 // ── SAVED ROUNDS ──
-const STORAGE_KEY = 'archive_rounds';
+const STORAGE_KEY='archive_rounds';
+function getRounds(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):[]}catch(e){return[]}}
+function setRounds(r){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(r))}catch(e){}}
+function showToast(msg){const el=$('save-toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000);}
 
-function getRounds() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch(e) { return []; }
-}
-
-function setRounds(rounds) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(rounds)); } catch(e) {}
-}
-
-function saveRound() {
-  const p1=$('inp-p1').value.trim(), p2=$('inp-p2').value.trim();
-  const home=$('inp-home').value.trim(), away=$('inp-away').value.trim();
-  const league=$('inp-league').value.trim();
-  if(!home||!away||!league){ alert(t('errFill')); return; }
-
-  const round = {
-    id: Date.now(),
-    savedAt: new Date().toLocaleDateString(lang==='ar'?'ar-SA':'en-GB'),
-    p1, p2,
-    home, away,
-    league,
-    season: $('inp-season').value.trim(),
-    hscore: $('inp-hscore').value,
-    ascore: $('inp-ascore').value,
-    homeEvents: getEvents('home'),
-    awayEvents: getEvents('away'),
-    ttype: $('inp-ttype').value,
-    tnum: $('inp-tnum').value,
-    tteam: $('inp-tteam').value,
-    tcustom: $('inp-tcustom').value.trim(),
-    tans: $('inp-tans').value.trim(),
+function saveRound(){
+  const home=$('inp-home').value.trim(),away=$('inp-away').value.trim(),league=$('inp-league').value.trim();
+  if(!home||!away||!league){alert(t('errFill'));return;}
+  const tid=parseInt($('inp-tid').value);
+  if(!tid||!getAllEvents().find(e=>e.gid===tid)){alert(lang==='ar'?'اختر رقم حدث صحيح أولاً':'Choose a valid event ID first');return;}
+  const round={
+    id:Date.now(), savedAt:new Date().toLocaleDateString(lang==='ar'?'ar-SA':'en-GB'),
+    p1:$('inp-p1').value.trim(), p2:$('inp-p2').value.trim(),
+    home, away, league, season:$('inp-season').value.trim(),
+    hscore:$('inp-hscore').value, ascore:$('inp-ascore').value,
+    homeEvents:getEvents('home'), awayEvents:getEvents('away'),
+    evNextId, targetId:tid,
   };
-
-  const rounds = getRounds();
-  rounds.unshift(round); // newest first
-  setRounds(rounds);
+  const rounds=getRounds(); rounds.unshift(round); setRounds(rounds);
   renderSavedRounds();
   showToast(lang==='ar'?'✓ تم الحفظ':'✓ Saved');
 }
 
-function loadRound(id) {
-  const rounds = getRounds();
-  const r = rounds.find(x => x.id === id);
-  if (!r) return;
-
-  // Fill form fields
-  $('inp-p1').value = r.p1 || '';
-  $('inp-p2').value = r.p2 || '';
-  $('inp-home').value = r.home || '';
-  $('inp-away').value = r.away || '';
-  $('inp-league').value = r.league || '';
-  $('inp-season').value = r.season || '';
-  $('inp-hscore').value = r.hscore ?? 0;
-  $('inp-ascore').value = r.ascore ?? 0;
-  $('inp-ttype').value = r.ttype || 'scored';
-  $('inp-tnum').value = r.tnum || 1;
-  $('inp-tteam').value = r.tteam || 'home';
-  $('inp-tcustom').value = r.tcustom || '';
-  $('inp-tans').value = r.tans || '';
-
-  // Rebuild events
-  $('list-home').innerHTML = ''; $('list-away').innerHTML = '';
-  evCtr = { home: 0, away: 0 };
-  (r.homeEvents||[]).forEach(e => {
-    addEvent('home');
-    const id2 = evCtr.home;
-    $(`ep-home-${id2}`).value = e.player;
-    $(`em-home-${id2}`).value = e.minute || '';
-    if (e.type === 'A') toggleType('home', id2);
-  });
-  (r.awayEvents||[]).forEach(e => {
-    addEvent('away');
-    const id2 = evCtr.away;
-    $(`ep-away-${id2}`).value = e.player;
-    $(`em-away-${id2}`).value = e.minute || '';
-    if (e.type === 'A') toggleType('away', id2);
-  });
-
+function loadRound(id){
+  const r=getRounds().find(x=>x.id===id); if(!r)return;
+  $('inp-p1').value=r.p1||''; $('inp-p2').value=r.p2||'';
+  $('inp-home').value=r.home||''; $('inp-away').value=r.away||'';
+  $('inp-league').value=r.league||''; $('inp-season').value=r.season||'';
+  $('inp-hscore').value=r.hscore??0; $('inp-ascore').value=r.ascore??0;
+  $('list-home').innerHTML=''; $('list-away').innerHTML='';
+  evNextId=1;
+  (r.homeEvents||[]).forEach(e=>addEventWithId('home',e.gid,e.type,e.player,e.minute||''));
+  (r.awayEvents||[]).forEach(e=>addEventWithId('away',e.gid,e.type,e.player,e.minute||''));
+  if(r.evNextId) evNextId=r.evNextId;
+  $('inp-tid').value=r.targetId||'';
   updateTargetPreview();
-  // Scroll to top of setup
-  $('view-setup').scrollTo({ top: 0, behavior: 'smooth' });
+  $('view-setup').scrollTo({top:0,behavior:'smooth'});
   showToast(lang==='ar'?'✓ تم التحميل':'✓ Loaded');
 }
 
-function deleteRound(id) {
-  const rounds = getRounds().filter(x => x.id !== id);
-  setRounds(rounds);
-  renderSavedRounds();
+function deleteRound(id){
+  setRounds(getRounds().filter(x=>x.id!==id)); renderSavedRounds();
 }
 
-function renderSavedRounds() {
-  const rounds = getRounds();
-  const sec = $('saved-section');
-  const list = $('saved-list');
-  const count = $('saved-count');
-
-  if (rounds.length === 0) {
-    sec.style.display = 'none';
-    return;
-  }
-  sec.style.display = '';
-  count.textContent = `(${rounds.length})`;
-
-  list.innerHTML = '';
-  rounds.forEach(r => {
-    const div = document.createElement('div');
-    div.className = 'saved-card';
-    div.innerHTML = `
+function renderSavedRounds(){
+  const rounds=getRounds();
+  const sec=$('saved-section'),list=$('saved-list'),count=$('saved-count');
+  if(!sec)return;
+  if(rounds.length===0){sec.style.display='none';return;}
+  sec.style.display=''; count.textContent=`(${rounds.length})`;
+  list.innerHTML='';
+  rounds.forEach(r=>{
+    const div=document.createElement('div'); div.className='saved-card';
+    div.innerHTML=`
       <div class="saved-card-info">
         <div class="saved-card-title">${r.home} vs ${r.away}</div>
         <div class="saved-card-meta">${r.league}${r.season?' · '+r.season:''} · ${r.hscore}-${r.ascore} · ${r.savedAt}</div>
@@ -838,15 +779,8 @@ function renderSavedRounds() {
   });
 }
 
-function showToast(msg) {
-  const el = $('save-toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2000);
-}
-
 // ── INIT ──
-applyTX();updateTargetPreview();renderSavedRounds();
+applyTX();
 </script>
 </body>
 </html>
